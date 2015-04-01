@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+    <title>Sorting</title>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    <meta name="generator" content="Geany 1.23.1" />
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style type="text/css">
+    #sortingvisual {
+    }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        
+        function arrayToForm(array,paramName) {
+        	var result = "";
+        	for (var i=0; i<array.length; i++) {
+        		result += paramName + "=" + array[i];
+        		if (i < array.length-1)
+        			result += "&";
+        	}
+        	
+        	return result;
+        }
+        
+        
+        function displaySamples(samples) {
+            console.log(samples);
+            var ctx = document.getElementById("sortingvisual").getContext("2d");
+            ctx.canvas.width = window.innerWidth-(window.innerWidth/50);
+            ctx.canvas.height = 500;
+            
+            var sampleWidth = ctx.canvas.width/samples.length;
+            var largest = Math.max.apply(null,samples);
+            for (var i=0; i<samples.length; i++) {
+                var sampleHeight = (samples[i]*ctx.canvas.height)/largest;
+                ctx.fillStyle = "#4E4EFF";
+                ctx.lineStyle = "#000000";
+                ctx.fillRect(i*sampleWidth,ctx.canvas.height-sampleHeight,sampleWidth,sampleHeight);
+                ctx.strokeRect(i*sampleWidth,ctx.canvas.height-sampleHeight,sampleWidth,sampleHeight);
+            }
+            
+        }
+        
+        function displayStep(step) {
+            console.log(step.values);
+            var ctx = document.getElementById("sortingvisual").getContext("2d");
+            ctx.canvas.width = window.innerWidth-(window.innerWidth/50);
+            ctx.canvas.height = 500;
+            
+            var sampleWidth = ctx.canvas.width/step.values.length;
+            var largest = Math.max.apply(null,step.values);
+            for (var i=0; i<step.values.length; i++) {
+                var sampleHeight = (step.values[i]*ctx.canvas.height)/largest;
+                if (step.focused == i) ctx.fillStyle = "#FFC100";
+                else ctx.fillStyle = "#4E4EFF";
+                ctx.lineStyle = "#000000";
+                ctx.fillRect(i*sampleWidth,ctx.canvas.height-sampleHeight,sampleWidth,sampleHeight);
+                ctx.strokeRect(i*sampleWidth,ctx.canvas.height-sampleHeight,sampleWidth,sampleHeight);
+            }
+        }            
+        
+
+        
+            
+    </script>
+</head>
+
+<body>
+    <div id="container">
+    <h1>Sorting Demonstration</h1>
+    <select id="numSamples">
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+        <option value="200">200</option>
+        <option value="500">500</option>
+        <option value="1000">1000</option>
+    </select>
+    <button id="generatebutton">Generate Samples</button>
+    <select id="sortselect">
+        <option value="insertion">Insertion Sort</option>
+        <option value="selection">Selection Sort</option>
+    </select>
+    <button id="sortbutton">Sort</button>
+    <button id="stopbutton">Stop Sort</button><br/>
+    
+    <canvas id="sortingvisual"></canvas>
+    </div>
+    <script>
+        var sortButton = document.getElementById("sortbutton");
+        var generateButton = document.getElementById("generatebutton");
+        sortButton.disabled = true;
+        
+        var sortingInterval = null;
+        var index;
+        var steps;
+        function visualizeStep() {
+        	console.log("visualizing");
+            if (index < steps.length) {
+                displayStep(steps[index]);
+                index++;
+            } else {
+            	console.log("ending");
+                clearInterval(sortingInterval);
+                generateButton.disabled = false;
+            }
+        }
+        
+        function startSortingVisualization(samples) {
+        	var sortingAlgorithmSelection = document.getElementById("sortselect");
+        	var sortingAlgorithm = sortingAlgorithmSelection.options[sortingAlgorithmSelection.selectedIndex].value;
+        	
+            var xmlhttp;
+            if (window.XMLHttpRequest) {
+                xmlhttp = new XMLHttpRequest();
+            } else {
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            xmlhttp.onreadystatechange = function() {
+            	console.log("doing the thing");
+                if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+                    // do the sort
+                    console.log("sorting");
+                    var result = JSON.parse(xmlhttp.responseText);
+                    console.log(result);
+                    steps = result.steps;
+                    index = 0;
+                    sortingInterval = setInterval(visualizeStep,1);                    
+                }
+            }
+            //var data = JSON.stringify({sample:randomSamples});
+            //var data = "sample=4&sample=3";
+            data = arrayToForm(randomSamples,"sample");
+            xmlhttp.open("POST", "http://bvworks.no-ip.org/tomcat/sorting/api/sort/"+sortingAlgorithm,true);
+            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xmlhttp.setRequestHeader("Access-Control-Allow-Origin","http://bvuongz.github.io/");
+            xmlhttp.withCredentials = true;
+            console.log(data);
+            xmlhttp.send(data);
+        }
+        
+
+
+        var randomSamples;
+        
+
+        generateButton.addEventListener("click",function() {
+            var numSamplesSelect = document.getElementById("numSamples");
+            var numSamples = numSamplesSelect.options[numSamplesSelect.selectedIndex].value;
+            randomSamples = new Array();
+            for (var i=0; i<numSamples; i++) {
+                randomSamples.push(Math.round((Math.random() * 1000) + 1));
+            }
+            displaySamples(randomSamples);
+            sortButton.disabled = false;
+        },false);
+        
+
+        sortButton.addEventListener("click",function() {
+            sortButton.disabled = true;
+            generateButton.disabled = true;
+            startSortingVisualization(randomSamples);
+
+        },false);
+    </script>
+</body>
+
+</html>
