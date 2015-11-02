@@ -1,0 +1,38 @@
+<html>
+  <head>
+    <title>White Elephant</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+  </head>
+
+  <body>
+
+    <div ng-app="whiteElephantApp" ng-controller="whiteElephantCtrl">
+
+      <div id="setupGame">
+
+        <input name="nameToAdd" type="text" ng-model="nameToAdd">
+        <button ng-click="addName(nameToAdd)">Add</button>
+        <ul>
+          <li ng-repeat="name in names">
+            {{ name }}
+          </li>
+        </ul>
+        
+      </div>
+
+
+
+    </div>
+
+    <script>
+    var app = angular.module('whiteElephantApp', []);
+    app.controller('whiteElephantCtrl', function($scope) {
+      $scope.names = [];
+
+      $scope.addName = function(name) {
+        $scope.names.push(name);
+      };
+    });
+    </script>
+  </body>
+</html>
