@@ -14,7 +14,7 @@
         <button ng-click="startGame()">Play</button>
         <ul>
           <li ng-repeat="name in names track by $index">
-            {{ name }}
+            {{ name }} <button ng-click="deleteName(name)">x</button>
           </li>
         </ul>
       </div>
@@ -54,6 +54,13 @@
           $scope.nameToAdd = '';
         }
       };
+
+      $scope.deleteName = function(name) {
+        var index = $scope.names.indexOf(name);
+        if (index != -1) {
+          $scope.names.splice(index,1);
+        }
+      }
 
       $scope.shuffle = function(inputList) {
         // Fisher-Yates algorithm
