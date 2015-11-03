@@ -8,9 +8,10 @@
 
     <div ng-app="whiteElephantApp" ng-controller="whiteElephantCtrl">
 
-      <div id="setupGame">
-        <input name="nameToAdd" type="text" ng-model="nameToAdd">
+      <div id="setupGame" ng-show="currentState == 0">
+        <input name="nameToAdd" type="text" ng-model="nameToAdd" ng-keypress="nameInputEnterKey($event)">
         <button ng-click="addName(nameToAdd)">Add</button>
+        <button ng-click="startGame()">Play</button>
         <ul>
           <li ng-repeat="name in names track by $index">
             {{ name }}
@@ -18,20 +19,80 @@
         </ul>
       </div>
 
+      <div id="playGame" ng-show="currentState == 1">
+        <button>Previous</button>
+        <button>Next</button>
+        <button>Reset Game</button>
+        <button ng-click="endGame()">End Game</button>
 
-      <div id="playGame">
+        <h1></h1>
+        <h2>remaining players: </h2>
+
       </div>
+
 
     </div>
 
     <script>
     var app = angular.module('whiteElephantApp', []);
     app.controller('whiteElephantCtrl', function($scope) {
+      $scope.currentState = 0;
+
       $scope.names = [];
 
+      $scope.nameInputEnterKey = function($event) {
+        var keyCode =  $event.which || $event.keyCode;
+        if (keyCode == 13) {
+          $scope.addName($scope.nameToAdd);
+        }
+      }
+
+
       $scope.addName = function(name) {
-        $scope.names.push(name);
+        if ($scope.nameToAdd.length > 0) {
+          $scope.names.push(name);
+          $scope.nameToAdd = '';
+        }
       };
+
+      $scope.shuffle = function(inputList) {
+        // Fisher-Yates algorithm
+
+        for (var i = inputList.length-1; i > 0; i--) {
+          j = Math.floor(Math.random() * (i));
+
+          // swap strings
+          inputList[i] = inputList[i] + inputList[j];
+          inputList[j] = inputList[i].substring(0, inputList[i].length - inputList[j].length);
+          inputList[i] = inputList[i].substring(inputList[j].length, inputList[i].length);
+        }
+      }
+
+
+      $scope.startGame = function() {
+        if ($scope.currentState == 0) {
+          if ($scope.names.length > 0) {
+            $scope.currentState = 1;
+            $scope.shuffle($scope.names);
+          } else {
+            alert ('there are no players!');
+          }
+        }
+      }
+
+      $scope.resetGame = function() {
+
+      }
+
+      $scope.endGame = function() {
+        $scope.names = [];
+        $scope.currentState = 0;
+      }
+
+
+
+
+
     });
     </script>
 
