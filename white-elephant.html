@@ -16,14 +16,16 @@
         
         <div class="input-group">
           <input name="nameToAdd" type="text" class="form-control" ng-model="nameToAdd" ng-keypress="nameInputEnterKey($event)">
-          <button type="button" class="btn btn-default" ng-click="addName(nameToAdd)">Add</button>
-          <button type="button" class="btn btn-default" ng-click="startGame()">Play</button>
+          <span class="input-group-btn">
+            <button type="button" class="btn btn-default" ng-click="addName(nameToAdd)">Add</button>
+            <button type="button" class="btn btn-default" ng-click="startGame()">Play</button>
+          </span>
         </div>
         
         <ul class="list-group">
           <li class="list-group-item" ng-repeat="name in names track by $index">
             {{ name }} 
-            <div class="text-right"><button class="btn btn-default" ng-click="deleteName(name)"><span class="glyphicon glyphicon-remove"/></button></div>
+            <button class="btn btn-default pull-right" ng-click="deleteName(name)"><span class="glyphicon glyphicon-remove"/></button>
           </li>
         </ul>
       </div>
