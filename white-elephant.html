@@ -20,13 +20,14 @@
       </div>
 
       <div id="playGame" ng-show="currentState == 1">
-        <button>Previous</button>
-        <button>Next</button>
-        <button>Reset Game</button>
+        <button ng-click="decrementCurrentIndex()">Previous</button>
+        <button ng-click="incrementCurrentIndex()">Next</button>
+        <button ng-click="resetGame()">Reset Game</button>
         <button ng-click="endGame()">End Game</button>
 
-        <h1></h1>
-        <h2>remaining players: </h2>
+        <h3>remaining players: {{ names.length - (currentIndex+1) }}</h3>
+        <h1>{{ currentIndex < 0 ? '' : names[currentIndex] }}</h1>
+
 
       </div>
 
@@ -36,15 +37,15 @@
     <script>
     var app = angular.module('whiteElephantApp', []);
     app.controller('whiteElephantCtrl', function($scope) {
-      
+
       // general
       $scope.currentState = 0;
       $scope.names = [];
-      
-      
+
+
       // in game
       $scope.currentIndex = -1;
-      
+
       $scope.nameInputEnterKey = function($event) {
         var keyCode =  $event.which || $event.keyCode;
         if (keyCode == 13) {
@@ -65,6 +66,16 @@
         if (index != -1) {
           $scope.names.splice(index,1);
         }
+      }
+
+      $scope.incrementCurrentIndex = function() {
+        if ($scope.currentIndex < $scope.names.length-1)
+          $scope.currentIndex++;
+      }
+
+      $scope.decrementCurrentIndex = function() {
+        if ($scope.currentIndex >= 0)
+          $scope.currentIndex--;
       }
 
       $scope.shuffle = function(inputList) {
@@ -93,7 +104,9 @@
       }
 
       $scope.resetGame = function() {
-
+        // ask to shuffle
+        $scope.shuffle($scope.names);
+        $scope.currentIndex = -1;
       }
 
       $scope.endGame = function() {
