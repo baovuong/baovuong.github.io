@@ -13,13 +13,13 @@
     <div class="container">
 
       <div id="setupGame" ng-show="currentState == 0">
-        <input name="nameToAdd" type="text" ng-model="nameToAdd" ng-keypress="nameInputEnterKey($event)">
+        <input name="nameToAdd" type="text" class="form-control" ng-model="nameToAdd" ng-keypress="nameInputEnterKey($event)">
         <button type="button" class="btn btn-default" ng-click="addName(nameToAdd)">Add</button>
         <button type="button" class="btn btn-default" ng-click="startGame()">Play</button>
         <ul class="list-group">
           <li class="list-group-item" ng-repeat="name in names track by $index">
             <td>{{ name }}<td>
-            <td><button ng-click="deleteName(name)">x</button></td>
+            <td><button class="btn pull-right" ng-click="deleteName(name)">x</button></td>
           </li>
         </ul>
       </div>
