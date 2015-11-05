@@ -5,7 +5,6 @@
   </head>
 
   <body>
-
     <div ng-app="whiteElephantApp" ng-controller="whiteElephantCtrl">
 
       <div id="setupGame" ng-show="currentState == 0">
@@ -24,13 +23,9 @@
         <button ng-click="incrementCurrentIndex()">Next</button>
         <button ng-click="resetGame()">Reset Game</button>
         <button ng-click="endGame()">End Game</button>
-
         <h3>remaining players: {{ names.length - (currentIndex+1) }}</h3>
         <h1>{{ currentIndex < 0 ? '' : names[currentIndex] }}</h1>
-
-
       </div>
-
 
     </div>
 
@@ -42,7 +37,6 @@
       $scope.currentState = 0;
       $scope.names = [];
 
-
       // in game
       $scope.currentIndex = -1;
 
@@ -52,7 +46,6 @@
           $scope.addName($scope.nameToAdd);
         }
       }
-
 
       $scope.addName = function(name) {
         if (name.length > 0 && $scope.names.indexOf(name) == -1) {
@@ -91,7 +84,6 @@
         }
       }
 
-
       $scope.startGame = function() {
         if ($scope.currentState == 0) {
           if ($scope.names.length > 0) {
@@ -114,12 +106,7 @@
         $scope.currentState = 0;
       }
 
-
-
-
-
     });
     </script>
-
   </body>
 </html>
