@@ -32,7 +32,7 @@
           <li class="list-group-item" ng-repeat="name in names track by $index">
             <div>
               {{ name }} 
-              <button class="btn btn-default pull-right" ng-click="deleteName(name)"><span class="glyphicon glyphicon-remove"/></button>
+              <span class="pull-right"><button class="btn btn-default" ng-click="deleteName(name)"><span class="glyphicon glyphicon-remove"/></button></span>
             </div>
           </li>
         </ul>
