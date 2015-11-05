@@ -1,11 +1,16 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>White Elephant</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
     <script src="js/angular.min.js"></script>
   </head>
 
-  <body>
-    <div ng-app="whiteElephantApp" ng-controller="whiteElephantCtrl">
+  <body ng-app="whiteElephantApp" ng-controller="whiteElephantCtrl">
+    <div class="container">
 
       <div id="setupGame" ng-show="currentState == 0">
         <input name="nameToAdd" type="text" ng-model="nameToAdd" ng-keypress="nameInputEnterKey($event)">
