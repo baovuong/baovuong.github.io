@@ -14,21 +14,27 @@
 
       <div id="setupGame" ng-show="currentState == 0">
         <input name="nameToAdd" type="text" ng-model="nameToAdd" ng-keypress="nameInputEnterKey($event)">
-        <button ng-click="addName(nameToAdd)">Add</button>
-        <button ng-click="startGame()">Play</button>
-        <table>
-          <tr ng-repeat="name in names track by $index">
+        <button type="button" class="btn btn-default" ng-click="addName(nameToAdd)">Add</button>
+        <button type="button" class="btn btn-default" ng-click="startGame()">Play</button>
+        <ul class="list-group">
+          <li class="list-group-item" ng-repeat="name in names track by $index">
             <td>{{ name }}<td>
             <td><button ng-click="deleteName(name)">x</button></td>
-          </tr>
-        </table>
+          </li>
+        </ul>
       </div>
 
       <div id="playGame" ng-show="currentState == 1">
-        <button ng-click="decrementCurrentIndex()">Previous</button>
-        <button ng-click="incrementCurrentIndex()">Next</button>
-        <button ng-click="resetGame()">Reset Game</button>
-        <button ng-click="endGame()">End Game</button>
+        <div class="btn-group">
+          <button type="button" class="btn btn-default" ng-click="decrementCurrentIndex()">Previous</button>
+          <button type="button" class="btn btn-default" ng-click="incrementCurrentIndex()">Next</button>
+          <button type="button" class="btn btn-default" ng-click="resetGame()">Reset Game</button>
+          <button type="button" class="btn btn-default" ng-click="endGame()">End Game</button>
+        </div>
+        
+
+        
+        
         <h3>remaining players: {{ names.length - (currentIndex+1) }}</h3>
         <h1>{{ currentIndex < 0 ? '' : names[currentIndex] }}</h1>
       </div>
