@@ -12,6 +12,10 @@
       .btn {
         vertical-align: middle;
       }
+      
+      .align-right {
+        text-align: right;
+      }
     </style>
   </head>
 
@@ -32,7 +36,7 @@
           <li class="list-group-item" ng-repeat="name in names track by $index">
             <div>
               {{ name }} 
-              <span class="pull-right"><button class="btn btn-default" ng-click="deleteName(name)"><span class="glyphicon glyphicon-remove"/></button></span>
+              <span class="align-right"><button class="btn btn-default" ng-click="deleteName(name)"><span class="glyphicon glyphicon-remove"/></button></span>
             </div>
           </li>
         </ul>
