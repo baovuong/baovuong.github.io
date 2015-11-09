@@ -7,6 +7,8 @@
     <title>White Elephant</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <script src="js/angular.min.js"></script>
+    <script src="js/jquery-1.11.3.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
 
     <style>
       .btn {
@@ -24,6 +26,9 @@
 
       <div id="setupGame" ng-show="currentState == 0">
 
+
+
+
         <div class="input-group">
           <input name="nameToAdd" type="text" class="form-control" ng-model="nameToAdd" ng-keypress="nameInputEnterKey($event)">
           <span class="input-group-btn">
@@ -40,6 +45,30 @@
             </div>
           </li>
         </ul>
+        <!-- Button trigger modal -->
+      <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+        Launch demo modal
+      </button>
+
+      <!-- Modal -->
+      <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+            </div>
+            <div class="modal-body">
+              bootstrap
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       </div>
 
       <div id="playGame" ng-show="currentState == 1">
