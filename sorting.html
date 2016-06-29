@@ -24,7 +24,9 @@
         }
     </style>
     <script type="text/javascript">
-
+        function round(x) {
+            return Math.floor(x);
+        }
         function arrayToForm(array,paramName) {
         	var result = "";
         	for (var i=0; i<array.length; i++) {
@@ -32,7 +34,7 @@
         		if (i < array.length-1)
         			result += "&";
         	}
-        	
+
         	return result;
         }
 
@@ -59,7 +61,7 @@
             steps.push({'values': arrayInput.slice(0)});
             return steps;
         }
-        
+
         function insertionSort(arrayInput) {
             var steps = new Array();
             steps.push({'values': arrayInput.slice(0)});
@@ -88,7 +90,7 @@
                 L.push(arr[l + i]);
             for (var j = 0; j < n2; j++)
                 R.push(arr[m + 1 + j]);
-            
+
             var i = 0;
             var j = 0;
             var k = l;
@@ -212,7 +214,7 @@
 
             var output = new Array(arr.length);
             var count = Array.apply(null, Array(arr.length-1)).map(Number.prototype.valueOf,0);
-            
+
             for (var i=0; i < arr.length; i++) {
                 count[arr[i]]++;
             }
@@ -234,10 +236,10 @@
 
             return steps;
         }
-            
-        
-        
-            
+
+
+
+
     </script>
 </head>
 
@@ -283,7 +285,7 @@
         </div>
         <!--<button id="stopbutton">Stop Sort</button><br/>-->
     </div>
-    
+
     <script>
         var canvas = document.getElementById('sortingvisual');
         canvas.width = window.innerWidth*0.8;
@@ -294,7 +296,7 @@
         var sortButton = document.getElementById("sortbutton");
         var generateButton = document.getElementById("generatebutton");
         sortButton.disabled = true;
-        
+
         var sortingInterval = null;
         var index;
         var steps;
@@ -306,28 +308,35 @@
         };
 
         function displaySamples(samples) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);       
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             var sampleWidth = canvas.width/samples.length;
             var largest = Math.max.apply(null,samples);
+            ctx.fillStyle = "#4E4EFF";
+            //ctx.lineStyle = "#4E4EFF";
             for (var i=0; i<samples.length; i++) {
                 var sampleHeight = (samples[i]*canvas.height)/largest;
-                ctx.fillStyle = "#4E4EFF";
-                ctx.lineStyle = "#4E4EFF";
                 ctx.fillRect(i*sampleWidth,canvas.height-sampleHeight,sampleWidth,sampleHeight);
             }
-            
+
         }
-        
+
         function displayStep(step) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);        
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             var sampleWidth = canvas.width/step.values.length;
             var largest = Math.max.apply(null,step.values);
+            // draw focused part first
+            if ('focused' in step) {
+                ctx.fillStyle = '#FFC100';
+                var sampleHeight = (step.values[step.focused]*canvas.height)/largest;
+                ctx.fillRect(step.focused*sampleWidth, canvas.height-sampleHeight, sampleWidth, sampleHeight);
+            }
+
+            // draw the rest
+            ctx.fillStyle = '#4E4EFF';
             for (var i=0; i<step.values.length; i++) {
                 var sampleHeight = (step.values[i]*canvas.height)/largest;
-                if (step.focused == i) ctx.fillStyle = "#FFC100";
-                else ctx.fillStyle = "#4E4EFF";
-                ctx.lineStyle = "#4E4EFF";
-                ctx.fillRect(i*sampleWidth,canvas.height-sampleHeight,sampleWidth,sampleHeight);
+                if (step.focused != i)
+                    ctx.fillRect(i*sampleWidth,canvas.height-sampleHeight,sampleWidth,sampleHeight);
             }
         }
 
@@ -343,11 +352,11 @@
                 generateButton.disabled = false;
             }
         }
-        
+
         function startSortingVisualization(samples) {
         	var sortingAlgorithmSelection = document.getElementById("sortselect");
         	var sortingAlgorithm = sortingAlgorithmSelection.options[sortingAlgorithmSelection.selectedIndex].value;
-        	
+
             var xmlhttp;
             if (window.XMLHttpRequest) {
                 xmlhttp = new XMLHttpRequest();
@@ -363,7 +372,7 @@
                     console.log(result);
                     steps = result.steps;
                     index = 0;
-                    sortingInterval = setInterval(visualizeStep,1);                    
+                    sortingInterval = setInterval(visualizeStep,1);
                 }
             }
             //var data = JSON.stringify({sample:randomSamples});
@@ -374,9 +383,9 @@
             console.log(data);
             xmlhttp.send(data);
         }
-        
+
         var randomSamples;
-        
+
         generateButton.addEventListener("click",function() {
             var numSamplesSelect = document.getElementById("numSamples");
             var numSamples = numSamplesSelect.options[numSamplesSelect.selectedIndex].value;
@@ -398,7 +407,7 @@
             displaySamples(randomSamples);
             sortButton.disabled = false;
         },false);
-        
+
         sortButton.addEventListener("click",function() {
             sortButton.disabled = true;
             generateButton.disabled = true;
@@ -418,7 +427,7 @@
             else if (sortingAlgorithm == 'counting')
                 steps = countingSort(randomSamples);
             index = 0;
-            sortingInterval = setInterval(visualizeStep,1);      
+            sortingInterval = setInterval(visualizeStep,1);
         },false);
     </script>
 </body>
