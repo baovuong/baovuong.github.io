@@ -187,7 +187,53 @@
             return steps;
         }
 
-        
+        function bubbleSort(arr) {
+            var steps = new Array();
+            steps.push({'values': arr.slice(0)});
+            for (var i=0; i<arr.length-1; i++) {
+                for (var j=0; j<arr.length-i-1; j++) {
+                    steps.push({'values': arr.slice(0), 'focused': j});
+                    if (arr[j] > arr[j+1]) {
+                        // swap
+                        var temp = arr[j];
+                        arr[j] = arr[j+1];
+                        arr[j+1] = temp;
+                        steps.push({'values': arr.slice(0)});
+                    }
+                }
+            }
+            steps.push({'values': arr.slice(0)});
+            return steps;
+        }
+
+        function countingSort(arr) {
+            var steps = new Array();
+            steps.push({'values': arr.slice(0)});
+
+            var output = new Array(arr.length);
+            var count = Array.apply(null, Array(arr.length-1)).map(Number.prototype.valueOf,0);
+            
+            for (var i=0; i < arr.length; i++) {
+                count[arr[i]]++;
+            }
+
+            for (var i=1; i<=arr.length; i++) {
+                count[i] += count[i-1];
+                steps.push({'values': count.slice(0)});
+            }
+
+            for (var i=0; i < arr.length; i++) {
+                output[count[arr[i]]-1] = arr[i];
+                --count[arr[i]];
+                steps.push({'values': output.slice(0)});
+            }
+
+            for (var i=0; i<arr.length; i++) {
+                arr[i] = output[i];
+            }
+
+            return steps;
+        }
             
         
         
@@ -216,8 +262,10 @@
                 <select id="sortselect" class="form-control">
                     <option value="insertion">Insertion Sort</option>
                     <option value="selection">Selection Sort</option>
+                    <option value="bubble">Bubble Sort</option>
                     <option value="merge">Merge Sort</option>
                     <option value="quick">Quick Sort</option>
+                    <option value="counting">Counting Sort</option>
                 </select>
             </div>
             <div class="col-sm-1"></div>
@@ -365,6 +413,10 @@
                 steps = mergeSort(randomSamples);
             else if (sortingAlgorithm == 'quick')
                 steps = quickSort(randomSamples);
+            else if (sortingAlgorithm == 'bubble')
+                steps = bubbleSort(randomSamples);
+            else if (sortingAlgorithm == 'counting')
+                steps = countingSort(randomSamples);
             index = 0;
             sortingInterval = setInterval(visualizeStep,1);      
         },false);
