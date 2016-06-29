@@ -8,6 +8,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <style type="text/css">
+        html {
+            padding-left: 0;
+            padding-right: 0;
+            margin-left: auto;
+            margin-right: auto;
+        }
         #sortingvisual {
             border-style: solid;
             padding-left: 0;
@@ -190,9 +196,11 @@
 </head>
 
 <body>
+    <canvas id="sortingvisual"></canvas>
     <div class="container" id="main">
         <div class="row">
-            <div class="col-sm-6">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-4">
                 <select id="numSamples" class="form-control">
                     <option value="10">10</option>
                     <option value="20">20</option>
@@ -203,12 +211,8 @@
                     <option value="1000">1000</option>
                 </select>
             </div>
-            <div class="col-sm-6">
-                <button id="generatebutton" type="button" class="btn btn-block btn-secondary">Generate</button>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-6">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-4">
                 <select id="sortselect" class="form-control">
                     <option value="insertion">Insertion Sort</option>
                     <option value="selection">Selection Sort</option>
@@ -216,13 +220,22 @@
                     <option value="quick">Quick Sort</option>
                 </select>
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-1"></div>
+        </div>
+        <div class="row">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-4">
+                <button id="generatebutton" type="button" class="btn btn-block btn-secondary">Generate</button>
+            </div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-4">
                 <button id="sortbutton" type="button" class="btn btn-block btn-primary">Sort</button>
             </div>
+            <div class="col-sm-1"></div>
         </div>
         <!--<button id="stopbutton">Stop Sort</button><br/>-->
     </div>
-    <canvas id="sortingvisual"></canvas>
+    
     <script>
         var canvas = document.getElementById('sortingvisual');
         canvas.width = window.innerWidth*0.8;
