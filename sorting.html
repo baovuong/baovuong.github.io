@@ -333,8 +333,19 @@
             var numSamplesSelect = document.getElementById("numSamples");
             var numSamples = numSamplesSelect.options[numSamplesSelect.selectedIndex].value;
             randomSamples = new Array();
-            for (var i=0; i<numSamples; i++) {
-                randomSamples.push(Math.round((Math.random() * 1000) + 1));
+            // populate
+            for (var i=1; i<=numSamples; i++) {
+                randomSamples.push(i);
+            }
+            // shuffle
+            var n = randomSamples.length;
+            for (var i=0; i<=n-2; i++) {
+                var j = Math.floor(Math.random() * (n-i));
+                if (i != i+j) {
+                    randomSamples[i] = randomSamples[i] ^ randomSamples[i+j];
+                    randomSamples[i+j] = randomSamples[i+j] ^ randomSamples[i];
+                    randomSamples[i] = randomSamples[i] ^ randomSamples[i+j];
+                }
             }
             displaySamples(randomSamples);
             sortButton.disabled = false;
