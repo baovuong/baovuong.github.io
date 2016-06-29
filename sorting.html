@@ -8,7 +8,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <style type="text/css">
-        #sortingvisual {}
+        #sortingvisual {
+            border-style: solid;
+            width: inherit;
+        }
     </style>
     <script type="text/javascript">
         
@@ -178,9 +181,9 @@
         function displaySamples(samples) {
             //console.log(samples);
             var ctx = document.getElementById("sortingvisual").getContext("2d");
-            var container = document.getElementById('main');
-            //ctx.canvas.width = window.innerWidth-(window.innerWidth/50);
-            ctx.canvas.height = 500;
+            //var container = document.getElementById('main');
+            ctx.canvas.width = window.innerWidth-(window.innerWidth/50);
+            //ctx.canvas.height = 500;
             //ctx.canvas.width = container.style.width;
             
             var sampleWidth = ctx.canvas.width/samples.length;
@@ -199,9 +202,9 @@
         function displayStep(step) {
             //console.log(step.values);
             var ctx = document.getElementById("sortingvisual").getContext("2d");
-            var container = document.getElementById('main');
-            //ctx.canvas.width = window.innerWidth-(window.innerWidth/50);
-            ctx.canvas.height = 500;
+            //var container = document.getElementById('main');
+            ctx.canvas.width = window.innerWidth-(window.innerWidth/50);
+            //ctx.canvas.height = 500;
             //ctx.canvas.width = container.style.width;
             
             var sampleWidth = ctx.canvas.width/step.values.length;
@@ -224,28 +227,41 @@
 
 <body>
     <div class="container" id="main">
-
-        <h1>Sorting Demonstration</h1>
-        <select id="numSamples">
-        <option value="10">10</option>
-        <option value="20">20</option>
-        <option value="50">50</option>
-        <option value="100">100</option>
-        <option value="200">200</option>
-        <option value="500">500</option>
-        <option value="1000">1000</option>
-    </select>
-        <button id="generatebutton">Generate Samples</button>
-        <select id="sortselect">
-        <option value="insertion">Insertion Sort</option>
-        <option value="selection">Selection Sort</option>
-        <option value="merge">Merge Sort</option>
-        <option value="quick">Quick Sort</option>
-    </select>
-        <button id="sortbutton">Sort</button>
-        <button id="stopbutton">Stop Sort</button><br/>
-
-        <canvas id="sortingvisual"></canvas>
+        <div class="row">
+            <div class="col-sm-6">
+                <select id="numSamples" class="form-control">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="200">200</option>
+                    <option value="500">500</option>
+                    <option value="1000">1000</option>
+                </select>
+            </div>
+            <div class="col-sm-6">
+                <button id="generatebutton" type="button" class="btn btn-secondary">Generate</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <select id="sortselect" class="form-control">
+                    <option value="insertion">Insertion Sort</option>
+                    <option value="selection">Selection Sort</option>
+                    <option value="merge">Merge Sort</option>
+                    <option value="quick">Quick Sort</option>
+                </select>
+            </div>
+            <div class="col-sm-6">
+                <button id="sortbutton" type="button" class="btn btn-secondary">Sort</button>
+            </div>
+        </div>
+        <!--<button id="stopbutton">Stop Sort</button><br/>-->
+        <div class="row">
+            <div class="col-sm-12">
+                <canvas id="sortingvisual"></canvas>
+            </div>
+        </div>
     </div>
     <script>
         var sortButton = document.getElementById("sortbutton");
