@@ -10,11 +10,15 @@
     <style type="text/css">
         #sortingvisual {
             border-style: solid;
-            width: inherit;
+            padding-left: 0;
+            padding-right: 0;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
         }
     </style>
     <script type="text/javascript">
-        
+
         function arrayToForm(array,paramName) {
         	var result = "";
         	for (var i=0; i<array.length; i++) {
@@ -178,47 +182,7 @@
         }
 
         
-        function displaySamples(samples) {
-            //console.log(samples);
-            var ctx = document.getElementById("sortingvisual").getContext("2d");
-            //var container = document.getElementById('main');
-            ctx.canvas.width = window.innerWidth-(window.innerWidth/50);
-            //ctx.canvas.height = 500;
-            //ctx.canvas.width = container.style.width;
             
-            var sampleWidth = ctx.canvas.width/samples.length;
-            var largest = Math.max.apply(null,samples);
-            for (var i=0; i<samples.length; i++) {
-                var sampleHeight = (samples[i]*ctx.canvas.height)/largest;
-                ctx.fillStyle = "#4E4EFF";
-                //ctx.lineStyle = "#000000";
-                ctx.lineStyle = "#4E4EFF";
-                ctx.fillRect(i*sampleWidth,ctx.canvas.height-sampleHeight,sampleWidth,sampleHeight);
-                //ctx.strokeRect(i*sampleWidth,ctx.canvas.height-sampleHeight,sampleWidth,sampleHeight);
-            }
-            
-        }
-        
-        function displayStep(step) {
-            //console.log(step.values);
-            var ctx = document.getElementById("sortingvisual").getContext("2d");
-            //var container = document.getElementById('main');
-            ctx.canvas.width = window.innerWidth-(window.innerWidth/50);
-            //ctx.canvas.height = 500;
-            //ctx.canvas.width = container.style.width;
-            
-            var sampleWidth = ctx.canvas.width/step.values.length;
-            var largest = Math.max.apply(null,step.values);
-            for (var i=0; i<step.values.length; i++) {
-                var sampleHeight = (step.values[i]*ctx.canvas.height)/largest;
-                if (step.focused == i) ctx.fillStyle = "#FFC100";
-                else ctx.fillStyle = "#4E4EFF";
-                //ctx.lineStyle = "#000000";
-                ctx.lineStyle = "#4E4EFF";
-                ctx.fillRect(i*sampleWidth,ctx.canvas.height-sampleHeight,sampleWidth,sampleHeight);
-                //ctx.strokeRect(i*sampleWidth,ctx.canvas.height-sampleHeight,sampleWidth,sampleHeight);
-            }
-        }            
         
         
             
@@ -240,7 +204,7 @@
                 </select>
             </div>
             <div class="col-sm-6">
-                <button id="generatebutton" type="button" class="btn btn-secondary">Generate</button>
+                <button id="generatebutton" type="button" class="btn btn-block btn-secondary">Generate</button>
             </div>
         </div>
         <div class="row">
@@ -253,17 +217,19 @@
                 </select>
             </div>
             <div class="col-sm-6">
-                <button id="sortbutton" type="button" class="btn btn-secondary">Sort</button>
+                <button id="sortbutton" type="button" class="btn btn-block btn-primary">Sort</button>
             </div>
         </div>
         <!--<button id="stopbutton">Stop Sort</button><br/>-->
-        <div class="row">
-            <div class="col-sm-12">
-                <canvas id="sortingvisual"></canvas>
-            </div>
-        </div>
     </div>
+    <canvas id="sortingvisual"></canvas>
     <script>
+        var canvas = document.getElementById('sortingvisual');
+        canvas.width = window.innerWidth*0.8;
+        canvas.height = window.innerHeight*0.5;
+        var ctx = canvas.getContext('2d');
+
+
         var sortButton = document.getElementById("sortbutton");
         var generateButton = document.getElementById("generatebutton");
         sortButton.disabled = true;
@@ -271,6 +237,40 @@
         var sortingInterval = null;
         var index;
         var steps;
+
+
+        window.onresize=function() {
+            canvas.width = window.innerWidth*0.8;
+            canvas.height = window.innerHeight*0.5;
+        };
+
+        function displaySamples(samples) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);       
+            var sampleWidth = canvas.width/samples.length;
+            var largest = Math.max.apply(null,samples);
+            for (var i=0; i<samples.length; i++) {
+                var sampleHeight = (samples[i]*canvas.height)/largest;
+                ctx.fillStyle = "#4E4EFF";
+                ctx.lineStyle = "#4E4EFF";
+                ctx.fillRect(i*sampleWidth,canvas.height-sampleHeight,sampleWidth,sampleHeight);
+            }
+            
+        }
+        
+        function displayStep(step) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);        
+            var sampleWidth = canvas.width/step.values.length;
+            var largest = Math.max.apply(null,step.values);
+            for (var i=0; i<step.values.length; i++) {
+                var sampleHeight = (step.values[i]*canvas.height)/largest;
+                if (step.focused == i) ctx.fillStyle = "#FFC100";
+                else ctx.fillStyle = "#4E4EFF";
+                ctx.lineStyle = "#4E4EFF";
+                ctx.fillRect(i*sampleWidth,canvas.height-sampleHeight,sampleWidth,sampleHeight);
+            }
+        }
+
+
         function visualizeStep() {
         	console.log("visualizing");
             if (index < steps.length) {
