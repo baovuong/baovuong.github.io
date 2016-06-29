@@ -4,15 +4,12 @@
 
 <head>
     <title>Sorting</title>
-    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-    <meta name="generator" content="Geany 1.23.1" />
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <style type="text/css">
-    #sortingvisual {
-    }
+        #sortingvisual {}
     </style>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
     <script type="text/javascript">
         
         function arrayToForm(array,paramName) {
@@ -25,31 +22,187 @@
         	
         	return result;
         }
+
+        function selectionSort(arrayInput) {
+            var steps = new Array();
+            steps.push({'values': arrayInput.slice(0)});
+            var n = arrayInput.length;
+            for (var j=0; j<n-1; j++) {
+                var iMin = j;
+                for (var i = j+1; i<n; i++) {
+                    steps.push({'values': arrayInput.slice(0), 'focused': i})
+                    if (arrayInput[i] < arrayInput[iMin]) {
+                        iMin = i;
+                    }
+                }
+                if (iMin != j) {
+                    var temp = arrayInput[j];
+                    arrayInput[j] = arrayInput[iMin];
+                    arrayInput[iMin] = temp;
+                    steps.push({'values': arrayInput.slice(0)});
+                }
+            }
+
+            steps.push({'values': arrayInput.slice(0)});
+            return steps;
+        }
         
+        function insertionSort(arrayInput) {
+            var steps = new Array();
+            steps.push({'values': arrayInput.slice(0)});
+            for (var i=0; i<arrayInput.length; i++) {
+                var key = arrayInput[i];
+                var j = i - 1;
+                while (j >= 0 && arrayInput[j] > key) {
+                    steps.push({'values': arrayInput.slice(0), 'focused': j});
+                    arrayInput[j+1] = arrayInput[j];
+                    j = j-1;
+                    steps.push({'values': arrayInput.slice(0)});
+                }
+                arrayInput[j+1] = key;
+                steps.push({'values': arrayInput.slice(0)});
+            }
+            return steps;
+        }
+
+        function merge(arr, l, m, r, steps) {
+            var n1 = m - l + 1;
+            var n2 = r - m;
+
+            var L = new Array();
+            var R = new Array();
+            for (var i = 0; i < n1; i++)
+                L.push(arr[l + i]);
+            for (var j = 0; j < n2; j++)
+                R.push(arr[m + 1 + j]);
+            
+            var i = 0;
+            var j = 0;
+            var k = l;
+
+            while (i < n1 && j < n2) {
+                if (L[i] <= R[j]) {
+                    arr[k] = L[i];
+                    i++;
+                }
+                else {
+                    arr[k] = R[j];
+                    j++;
+                }
+                steps.push({'values': arr.slice(0), 'focused': k})
+                k++;
+                steps.push({'values': arr.slice(0)});
+            }
+
+            while (i < n1) {
+                arr[k] = L[i];
+                steps.push({'values': arr.slice(0)});
+                i++;
+                k++;
+            }
+
+            while (j < n2) {
+                arr[k] = R[j];
+                steps.push({'values': arr.slice(0)});
+                j++;
+                k++;
+            }
+            steps.push({'values': arr.slice(0)});
+            return steps;
+        }
+
+        function min(x,y) {
+            return (x < y) ? x : y;
+        }
+
+        function mergeSort(arr, l=0, r=-1, steps=null) {
+            if (r == -1 && steps == null) {
+                r = arr.length-1;
+            }
+            if (steps == null) {
+                steps = new Array();
+                steps.push({'values': arr.slice(0)});
+            }
+
+            if (l < r) {
+                var m = Math.floor(l + (r-l)/2);
+                mergeSort(arr, l, m, steps);
+                mergeSort(arr, m+1, r, steps);
+                merge(arr, l, m, r, steps);
+            }
+            return steps;
+        }
+
+        function partition(arr, l, h, steps) {
+            var x = arr[h];
+            var i = l - 1;
+
+            for (var j=l; j <= h-1; j++) {
+                steps.push({'values': arr.slice(0), 'focused': j})
+                if (arr[j] <= x) {
+                    i++;
+                    // swap
+                    var temp = arr[i];
+                    arr[i] = arr[j];
+                    arr[j] = temp;
+                    steps.push({'values': arr.slice()});
+                }
+            }
+            // swap
+            var temp = arr[i+1];
+            arr[i+1] = arr[h];
+            arr[h] = temp;
+            steps.push({'values': arr.slice()});
+
+            return (i+1);
+        }
+
+        function quickSort(arr, l=0, h=-1, steps=null) {
+            if (h == -1 && steps == null) {
+                h = arr.length-1;
+            }
+            if (steps == null) {
+                steps = new Array();
+                steps.push({'values': arr.slice()});
+            }
+
+            if (l < h) {
+                var p = partition(arr, l, h, steps);
+                quickSort(arr, l, p - 1, steps);
+                quickSort(arr, p + 1, h, steps);
+            }
+            return steps;
+        }
+
         
         function displaySamples(samples) {
-            console.log(samples);
+            //console.log(samples);
             var ctx = document.getElementById("sortingvisual").getContext("2d");
-            ctx.canvas.width = window.innerWidth-(window.innerWidth/50);
+            var container = document.getElementById('main');
+            //ctx.canvas.width = window.innerWidth-(window.innerWidth/50);
             ctx.canvas.height = 500;
+            //ctx.canvas.width = container.style.width;
             
             var sampleWidth = ctx.canvas.width/samples.length;
             var largest = Math.max.apply(null,samples);
             for (var i=0; i<samples.length; i++) {
                 var sampleHeight = (samples[i]*ctx.canvas.height)/largest;
                 ctx.fillStyle = "#4E4EFF";
-                ctx.lineStyle = "#000000";
+                //ctx.lineStyle = "#000000";
+                ctx.lineStyle = "#4E4EFF";
                 ctx.fillRect(i*sampleWidth,ctx.canvas.height-sampleHeight,sampleWidth,sampleHeight);
-                ctx.strokeRect(i*sampleWidth,ctx.canvas.height-sampleHeight,sampleWidth,sampleHeight);
+                //ctx.strokeRect(i*sampleWidth,ctx.canvas.height-sampleHeight,sampleWidth,sampleHeight);
             }
             
         }
         
         function displayStep(step) {
-            console.log(step.values);
+            //console.log(step.values);
             var ctx = document.getElementById("sortingvisual").getContext("2d");
-            ctx.canvas.width = window.innerWidth-(window.innerWidth/50);
+            var container = document.getElementById('main');
+            //ctx.canvas.width = window.innerWidth-(window.innerWidth/50);
             ctx.canvas.height = 500;
+            //ctx.canvas.width = container.style.width;
             
             var sampleWidth = ctx.canvas.width/step.values.length;
             var largest = Math.max.apply(null,step.values);
@@ -57,22 +210,23 @@
                 var sampleHeight = (step.values[i]*ctx.canvas.height)/largest;
                 if (step.focused == i) ctx.fillStyle = "#FFC100";
                 else ctx.fillStyle = "#4E4EFF";
-                ctx.lineStyle = "#000000";
+                //ctx.lineStyle = "#000000";
+                ctx.lineStyle = "#4E4EFF";
                 ctx.fillRect(i*sampleWidth,ctx.canvas.height-sampleHeight,sampleWidth,sampleHeight);
-                ctx.strokeRect(i*sampleWidth,ctx.canvas.height-sampleHeight,sampleWidth,sampleHeight);
+                //ctx.strokeRect(i*sampleWidth,ctx.canvas.height-sampleHeight,sampleWidth,sampleHeight);
             }
         }            
         
-
         
             
     </script>
 </head>
 
 <body>
-    <div id="container">
-    <h1>Sorting Demonstration</h1>
-    <select id="numSamples">
+    <div class="container" id="main">
+
+        <h1>Sorting Demonstration</h1>
+        <select id="numSamples">
         <option value="10">10</option>
         <option value="20">20</option>
         <option value="50">50</option>
@@ -81,15 +235,17 @@
         <option value="500">500</option>
         <option value="1000">1000</option>
     </select>
-    <button id="generatebutton">Generate Samples</button>
-    <select id="sortselect">
+        <button id="generatebutton">Generate Samples</button>
+        <select id="sortselect">
         <option value="insertion">Insertion Sort</option>
         <option value="selection">Selection Sort</option>
+        <option value="merge">Merge Sort</option>
+        <option value="quick">Quick Sort</option>
     </select>
-    <button id="sortbutton">Sort</button>
-    <button id="stopbutton">Stop Sort</button><br/>
-    
-    <canvas id="sortingvisual"></canvas>
+        <button id="sortbutton">Sort</button>
+        <button id="stopbutton">Stop Sort</button><br/>
+
+        <canvas id="sortingvisual"></canvas>
     </div>
     <script>
         var sortButton = document.getElementById("sortbutton");
@@ -136,19 +292,14 @@
             //var data = JSON.stringify({sample:randomSamples});
             //var data = "sample=4&sample=3";
             data = arrayToForm(randomSamples,"sample");
-            xmlhttp.open("POST", "http://bvworks.no-ip.org/tomcat/sorting/api/sort/"+sortingAlgorithm,true);
+            xmlhttp.open("POST", "api/sort/"+sortingAlgorithm);
             xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xmlhttp.setRequestHeader("Access-Control-Allow-Origin","http://bvuongz.github.io/");
-            xmlhttp.withCredentials = true;
             console.log(data);
             xmlhttp.send(data);
         }
         
-
-
         var randomSamples;
         
-
         generateButton.addEventListener("click",function() {
             var numSamplesSelect = document.getElementById("numSamples");
             var numSamples = numSamplesSelect.options[numSamplesSelect.selectedIndex].value;
@@ -160,12 +311,22 @@
             sortButton.disabled = false;
         },false);
         
-
         sortButton.addEventListener("click",function() {
             sortButton.disabled = true;
             generateButton.disabled = true;
-            startSortingVisualization(randomSamples);
-
+            // startSortingVisualization(randomSamples);
+            var sortingAlgorithmSelection = document.getElementById("sortselect");
+            var sortingAlgorithm = sortingAlgorithmSelection.options[sortingAlgorithmSelection.selectedIndex].value;
+            if (sortingAlgorithm == 'selection')
+                steps = selectionSort(randomSamples);
+            else if (sortingAlgorithm == 'insertion')
+                steps = insertionSort(randomSamples);
+            else if (sortingAlgorithm == 'merge')
+                steps = mergeSort(randomSamples);
+            else if (sortingAlgorithm == 'quick')
+                steps = quickSort(randomSamples);
+            index = 0;
+            sortingInterval = setInterval(visualizeStep,1);      
         },false);
     </script>
 </body>
