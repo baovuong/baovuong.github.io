@@ -70,14 +70,14 @@
             var frames = {};
             frames.initial = arrayInput.slice(0);
             frames.steps = new Array();
-            var previous = frames.initial.slice(0);
+            var previous = {'values': frames.initial.slice(0)};
 
             var n = arrayInput.length;
             for (var j=0; j<n-1; j++) {
                 var iMin = j;
                 for (var i = j+1; i<n; i++) {
-                    frames.steps.push(stepDiff({'values': arrayInput.slice(0), 'focused': i}, {'values': previous.slice(0)}));
-                    previous = arrayInput.slice(0);
+                    frames.steps.push(stepDiff({'values': arrayInput.slice(0), 'focused': i}, previous));
+                    previous.values = arrayInput.slice(0);
 
                     if (arrayInput[i] < arrayInput[iMin]) {
                         iMin = i;
@@ -87,12 +87,12 @@
                     var temp = arrayInput[j];
                     arrayInput[j] = arrayInput[iMin];
                     arrayInput[iMin] = temp;
-                    frames.steps.push(stepDiff({'values': arrayInput.slice(0)}, {'values': previous.slice(0)}));
-                    previous = arrayInput.slice(0);
+                    frames.steps.push(stepDiff({'values': arrayInput.slice(0)}, previous));
+                    previous.values = arrayInput.slice(0);
                 }
             }
 
-            frames.steps.push(stepDiff({'values': arrayInput.slice(0)}, {'values': previous.slice(0)}));
+            frames.steps.push(stepDiff({'values': arrayInput.slice(0)}, previous));
             return frames;
         }
 
@@ -124,7 +124,7 @@
             return frames;
         }
 
-        function merge(arr, l, m, r, steps) {
+        function merge(arr, l, m, r, frames, previous) {
             var n1 = m - l + 1;
             var n2 = r - m;
 
@@ -148,25 +148,29 @@
                     arr[k] = R[j];
                     j++;
                 }
-                steps.push({'values': arr.slice(0), 'focused': k})
+                frames.steps.push(stepDiff({'values': arr.slice(0), 'focused': k}, previous));
+                previous.values = arr.slice(0);
                 k++;
-                steps.push({'values': arr.slice(0)});
+                frames.steps.push(stepDiff({'values': arr.slice(0)}, previous));
+                //previous.values = arr.slice(0);
             }
 
             while (i < n1) {
                 arr[k] = L[i];
-                steps.push({'values': arr.slice(0)});
+                frames.steps.push(stepDiff({'values': arr.slice(0)}, previous));
+                previous.values = arr.slice(0);
                 i++;
                 k++;
             }
 
             while (j < n2) {
                 arr[k] = R[j];
-                steps.push({'values': arr.slice(0)});
+                frames.steps.push(stepDiff({'values': arr.slice(0)}, previous));
+                previous.values = arr.slice(0);
                 j++;
                 k++;
             }
-            steps.push({'values': arr.slice(0)});
+            //steps.push({'values': arr.slice(0)});
             return steps;
         }
 
@@ -174,82 +178,91 @@
             return (x < y) ? x : y;
         }
 
-        function mergeSort(arr, l=0, r=-1, steps=null) {
-            if (r == -1 && steps == null) {
+        function mergeSort(arr, l=0, r=-1, frames=null, previous=null) {
+            if (r == -1 && frames == null) {
                 r = arr.length-1;
             }
-            if (steps == null) {
-                steps = new Array();
-                steps.push({'values': arr.slice(0)});
+            if (frames == null) {
+                frames = {};
+                frames.initial = arr.slice(0);
+                frames.steps = new Array();
+                previous = {'values': arr.slice(0)};
             }
 
             if (l < r) {
                 var m = Math.floor(l + (r-l)/2);
-                mergeSort(arr, l, m, steps);
-                mergeSort(arr, m+1, r, steps);
-                merge(arr, l, m, r, steps);
+                mergeSort(arr, l, m, frames, previous);
+                mergeSort(arr, m+1, r, frames, previous);
+                merge(arr, l, m, r, frames, previous);
             }
-            return steps;
+            return frames;
         }
 
-        function partition(arr, l, h, steps) {
+        function partition(arr, l, h, frames, previous) {
             var x = arr[h];
             var i = l - 1;
 
             for (var j=l; j <= h-1; j++) {
-                steps.push({'values': arr.slice(0), 'focused': j})
+                frames.steps.push(stepDiff({'values': arr.slice(0), 'focused': j}, previous));
                 if (arr[j] <= x) {
                     i++;
                     // swap
                     var temp = arr[i];
                     arr[i] = arr[j];
                     arr[j] = temp;
-                    steps.push({'values': arr.slice()});
+                    frames.steps.push(stepDiff({'values': arr.slice(0)}, previous));
+                    previous.values = arr.slice(0);
                 }
             }
             // swap
             var temp = arr[i+1];
             arr[i+1] = arr[h];
             arr[h] = temp;
-            steps.push({'values': arr.slice()});
-
+            frames.steps.push(stepDiff({'values': arr.slice(0)}, previous));
+            previous.values = arr.slice(0);
             return (i+1);
         }
 
-        function quickSort(arr, l=0, h=-1, steps=null) {
-            if (h == -1 && steps == null) {
+        function quickSort(arr, l=0, h=-1, frames=null, previous=null) {
+            if (h == -1 && frames == null) {
                 h = arr.length-1;
             }
-            if (steps == null) {
-                steps = new Array();
-                steps.push({'values': arr.slice()});
+            if (frames == null) {
+                frames = {};
+                frames.initial = arr.slice(0);
+                frames.steps = new Array();
+                previous = {'values': arr.slice(0)};
             }
 
             if (l < h) {
-                var p = partition(arr, l, h, steps);
-                quickSort(arr, l, p - 1, steps);
-                quickSort(arr, p + 1, h, steps);
+                var p = partition(arr, l, h, frames, previous);
+                quickSort(arr, l, p - 1, frames, previous);
+                quickSort(arr, p + 1, h, frames, previous);
             }
-            return steps;
+            return frames;
         }
 
         function bubbleSort(arr) {
-            var steps = new Array();
-            steps.push({'values': arr.slice(0)});
+            var frames = {};
+            frames.steps = new Array();
+            frames.initial = arr.slice(0);
+            var previous = {'values': arr.slice(0)};
+            //steps.push({'values': arr.slice(0)});
             for (var i=0; i<arr.length-1; i++) {
                 for (var j=0; j<arr.length-i-1; j++) {
-                    steps.push({'values': arr.slice(0), 'focused': j});
+                    frames.steps.push(stepDiff({'values': arr.slice(0), 'focused': j}, previous));
                     if (arr[j] > arr[j+1]) {
                         // swap
                         var temp = arr[j];
                         arr[j] = arr[j+1];
                         arr[j+1] = temp;
-                        steps.push({'values': arr.slice(0)});
+                        frames.steps.push(stepDiff({'values': arr.slice(0)}, previous));
+                        previous.values = arr.slice(0);
                     }
                 }
             }
-            steps.push({'values': arr.slice(0)});
-            return steps;
+            frames.steps.push(stepDiff({'values': arr.slice(0)}, previous));
+            return frames;
         }
 
         function countingSort(arr) {
@@ -306,12 +319,12 @@
             <div class="col-sm-1"></div>
             <div class="col-sm-4">
                 <select id="sortselect" class="form-control">
-                    <option value="insertion">Insertion Sort</option>
                     <option value="selection">Selection Sort</option>
                     <option value="bubble">Bubble Sort</option>
+                    <option value="insertion">Insertion Sort</option>
                     <option value="merge">Merge Sort</option>
                     <option value="quick">Quick Sort</option>
-                    <option value="counting">Counting Sort</option>
+                    <!--<option value="counting">Counting Sort</option>-->
                 </select>
             </div>
             <div class="col-sm-1"></div>
