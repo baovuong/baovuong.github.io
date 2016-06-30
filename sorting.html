@@ -40,7 +40,6 @@
             // check if new focused value
             if ('focused' in current)
                 diff.focused = current.focused;
-
             return diff;
         }
 
@@ -52,6 +51,8 @@
             }
             if ('focused' in next)
                 current.focused = next.focused;
+            else if ('focused' in current)
+                delete current.focused;
         }
 
         function arrayToForm(array,paramName) {
@@ -92,25 +93,35 @@
             }
 
             frames.steps.push(stepDiff({'values': arrayInput.slice(0)}, {'values': previous.slice(0)}));
-            return steps;
+            return frames;
         }
 
         function insertionSort(arrayInput) {
-            var steps = new Array();
-            steps.push({'values': arrayInput.slice(0)});
+            var frames = {};
+            frames.initial = arrayInput.slice(0);
+            frames.steps = new Array();
+            var previous = frames.initial.slice(0);
+
+            frames.steps.push(stepDiff({'values': arrayInput.slice(0)}, {'values': previous.slice(0)}));
+            previous = arrayInput.slice(0);
             for (var i=0; i<arrayInput.length; i++) {
                 var key = arrayInput[i];
                 var j = i - 1;
                 while (j >= 0 && arrayInput[j] > key) {
-                    steps.push({'values': arrayInput.slice(0), 'focused': j});
+                    frames.steps.push(stepDiff({'values': arrayInput.slice(0), 'focused': j}, {'values': previous.slice(0)}));
+                    previous = arrayInput.slice(0);
+
                     arrayInput[j+1] = arrayInput[j];
                     j = j-1;
-                    steps.push({'values': arrayInput.slice(0)});
+                    frames.steps.push(stepDiff({'values': arrayInput.slice(0)}, {'values': previous.slice(0)}));
+                    previous = arrayInput.slice(0);
                 }
                 arrayInput[j+1] = key;
-                steps.push({'values': arrayInput.slice(0)});
+                frames.steps.push(stepDiff({'values': arrayInput.slice(0)}, {'values': previous.slice(0)}));
+                previous = arrayInput.slice(0);
             }
-            return steps;
+            frames.steps.push(stepDiff({'values': arrayInput.slice(0)}, {'values': previous.slice(0)}));
+            return frames;
         }
 
         function merge(arr, l, m, r, steps) {
@@ -377,12 +388,14 @@
 
 
         function visualizeStep() {
-        	console.log("visualizing");
-            if (index < steps.length) {
-                displayStep(steps[index]);
+        	//console.log("visualizing");
+            if (index < frames.steps.length) {
+                //displayStep(steps[index]);
+                nextStep(current, frames.steps[index]);
+                displayStep(current);
                 index++;
             } else {
-            	console.log("ending");
+            	//console.log("ending");
                 clearInterval(sortingInterval);
                 generateButton.disabled = false;
             }
@@ -450,17 +463,18 @@
             var sortingAlgorithmSelection = document.getElementById("sortselect");
             var sortingAlgorithm = sortingAlgorithmSelection.options[sortingAlgorithmSelection.selectedIndex].value;
             if (sortingAlgorithm == 'selection')
-                steps = selectionSort(randomSamples);
+                frames = selectionSort(randomSamples);
             else if (sortingAlgorithm == 'insertion')
-                steps = insertionSort(randomSamples);
+                frames = insertionSort(randomSamples);
             else if (sortingAlgorithm == 'merge')
-                steps = mergeSort(randomSamples);
+                frames = mergeSort(randomSamples);
             else if (sortingAlgorithm == 'quick')
-                steps = quickSort(randomSamples);
+                frames = quickSort(randomSamples);
             else if (sortingAlgorithm == 'bubble')
-                steps = bubbleSort(randomSamples);
+                frames = bubbleSort(randomSamples);
             else if (sortingAlgorithm == 'counting')
-                steps = countingSort(randomSamples);
+                frames = countingSort(randomSamples);
+            current = {'values': frames.initial.slice(0)};
             index = 0;
             sortingInterval = setInterval(visualizeStep,1);
         },false);
