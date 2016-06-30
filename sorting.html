@@ -24,9 +24,36 @@
         }
     </style>
     <script type="text/javascript">
-        function round(x) {
-            return Math.floor(x);
+        function stepDiff(current, previous) {
+            // diff should have the following:
+            // * array of new values in certain indexes
+            // * whether that step is focused or not
+            var diff = { 'values': {}};
+
+            // check for new values
+            for (var i=0; i<current.values.length; i++) {
+                if (current.values[i] != previous.values[i]) {
+                    diff.values[i] = current.values[i];
+                }
+            }
+
+            // check if new focused value
+            if ('focused' in current)
+                diff.focused = current.focused;
+
+            return diff;
         }
+
+        function nextStep(current, next) {
+            for (var property in next.values) {
+                if (next.values.hasOwnProperty(property)) {
+                    current.values[property] = next.values[property];
+                }
+            }
+            if ('focused' in next)
+                current.focused = next.focused;
+        }
+
         function arrayToForm(array,paramName) {
         	var result = "";
         	for (var i=0; i<array.length; i++) {
@@ -39,13 +66,18 @@
         }
 
         function selectionSort(arrayInput) {
-            var steps = new Array();
-            steps.push({'values': arrayInput.slice(0)});
+            var frames = {};
+            frames.initial = arrayInput.slice(0);
+            frames.steps = new Array();
+            var previous = frames.initial.slice(0);
+
             var n = arrayInput.length;
             for (var j=0; j<n-1; j++) {
                 var iMin = j;
                 for (var i = j+1; i<n; i++) {
-                    steps.push({'values': arrayInput.slice(0), 'focused': i})
+                    frames.steps.push(stepDiff({'values': arrayInput.slice(0), 'focused': i}, {'values': previous.slice(0)}));
+                    previous = arrayInput.slice(0);
+
                     if (arrayInput[i] < arrayInput[iMin]) {
                         iMin = i;
                     }
@@ -54,11 +86,12 @@
                     var temp = arrayInput[j];
                     arrayInput[j] = arrayInput[iMin];
                     arrayInput[iMin] = temp;
-                    steps.push({'values': arrayInput.slice(0)});
+                    frames.steps.push(stepDiff({'values': arrayInput.slice(0)}, {'values': previous.slice(0)}));
+                    previous = arrayInput.slice(0);
                 }
             }
 
-            steps.push({'values': arrayInput.slice(0)});
+            frames.steps.push(stepDiff({'values': arrayInput.slice(0)}, {'values': previous.slice(0)}));
             return steps;
         }
 
@@ -300,6 +333,8 @@
         var sortingInterval = null;
         var index;
         var steps;
+        var current;
+        var frames;
 
 
         window.onresize=function() {
