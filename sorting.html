@@ -6,7 +6,7 @@
     <title>Sorting</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
     <style type="text/css">
         html {
             padding-left: 0;
@@ -28,12 +28,12 @@
             // diff should have the following:
             // * array of new values in certain indexes
             // * whether that step is focused or not
-            var diff = { 'values': {}};
+            var diff = { 'changes': new Array() };
 
             // check for new values
             for (var i=0; i<current.values.length; i++) {
                 if (current.values[i] != previous.values[i]) {
-                    diff.values[i] = current.values[i];
+                    diff.changes.push({'index': i, 'value': current.values[i]});
                 }
             }
 
@@ -44,10 +44,8 @@
         }
 
         function nextStep(current, next) {
-            for (var property in next.values) {
-                if (next.values.hasOwnProperty(property)) {
-                    current.values[property] = next.values[property];
-                }
+            for (var i=0; i<next.changes.length; i++) {
+                current.values[next.changes[i].index] = next.changes[i].value;
             }
             if ('focused' in next)
                 current.focused = next.focused;
@@ -171,7 +169,7 @@
                 k++;
             }
             //steps.push({'values': arr.slice(0)});
-            return steps;
+            return frames;
         }
 
         function min(x,y) {
@@ -266,8 +264,8 @@
         }
 
         function countingSort(arr) {
-            var steps = new Array();
-            steps.push({'values': arr.slice(0)});
+            var frames = {};
+            frames.intial = arr.slice(0);
 
             var output = new Array(arr.length);
             var count = Array.apply(null, Array(arr.length-1)).map(Number.prototype.valueOf,0);
@@ -291,7 +289,14 @@
                 arr[i] = output[i];
             }
 
-            return steps;
+            return frames;
+        }
+
+        function shellSort(arr) {
+            var frames = {};
+            frames.initial = arr.slice(0);
+
+            return frames;
         }
 
 
@@ -306,14 +311,12 @@
         <div class="row">
             <div class="col-sm-1"></div>
             <div class="col-sm-4">
-                <select id="numSamples" class="form-control">
-                    <option value="10">10</option>
-                    <option value="20">20</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                    <option value="200">200</option>
-                    <option value="500">500</option>
-                    <option value="1000">1000</option>
+                <select id="blockSize" class="form-control">
+                    <option value="64">Very Small</option>
+                    <option value="32">Small</option>
+                    <option value="16">Medium</option>
+                    <option value="4">Large</option>
+                    <option value="1">Very Large</option>
                 </select>
             </div>
             <div class="col-sm-1"></div>
@@ -345,8 +348,14 @@
 
     <script>
         var canvas = document.getElementById('sortingvisual');
-        canvas.width = window.innerWidth*0.8;
-        canvas.height = window.innerHeight*0.5;
+        window.onresize=function() {
+            canvas.width = Math.pow(2,Math.floor(Math.log(window.innerWidth)/Math.log(2))-0);
+            canvas.height = window.innerHeight*0.5;
+        };
+
+        window.onresize();
+        //canvas.width = Math.pow(2,Math.floor(Math.log(window.innerWidth)/Math.log(2))-0);
+        //canvas.height = window.innerHeight*0.5;
         var ctx = canvas.getContext('2d');
 
 
@@ -356,46 +365,79 @@
 
         var sortingInterval = null;
         var index;
-        var steps;
         var current;
         var frames;
 
 
         window.onresize=function() {
-            canvas.width = window.innerWidth*0.8;
+            canvas.width = Math.pow(2,Math.floor(Math.log(window.innerWidth)/Math.log(2))-0);
             canvas.height = window.innerHeight*0.5;
         };
 
         function displaySamples(samples) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
             var sampleWidth = canvas.width/samples.length;
             var largest = Math.max.apply(null,samples);
             ctx.fillStyle = "#4E4EFF";
             //ctx.lineStyle = "#4E4EFF";
             for (var i=0; i<samples.length; i++) {
                 var sampleHeight = (samples[i]*canvas.height)/largest;
-                ctx.fillRect(i*sampleWidth,canvas.height-sampleHeight,sampleWidth,sampleHeight);
+                //ctx.fillRect(i*sampleWidth,canvas.height-sampleHeight,sampleWidth,sampleHeight);
+                ctx.moveTo(i*sampleWidth, canvas.height);
+                ctx.lineTo(i*sampleWidth, canvas.height-sampleHeight);
+                ctx.lineTo(i*sampleWidth+sampleWidth, canvas.height-sampleHeight);
+                ctx.lineTo(i*sampleWidth+sampleWidth, canvas.height);
             }
+            ctx.fill();
 
         }
 
-        function displayStep(step) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            var sampleWidth = canvas.width/step.values.length;
-            var largest = Math.max.apply(null,step.values);
-            // draw focused part first
-            if ('focused' in step) {
-                ctx.fillStyle = '#FFC100';
-                var sampleHeight = (step.values[step.focused]*canvas.height)/largest;
-                ctx.fillRect(step.focused*sampleWidth, canvas.height-sampleHeight, sampleWidth, sampleHeight);
+        function displayStep(previous, step) {
+            var minIndex = -1;
+            var maxIndex = -1;
+            var largest = previous.values.length;
+            var sampleWidth = Math.floor(canvas.width/largest);
+            if ('focused' in previous) {
+                // erase
+                var sampleHeight = Math.floor((previous.values[previous.focused]*canvas.height)/largest);
+                ctx.fillStyle = '#4E4EFF';
+                ctx.fillRect(previous.focused*sampleWidth, canvas.height-sampleHeight, sampleWidth, sampleHeight);
+            }
+            var changed = false;
+            if (step.changes.length > 0) {
+                minIndex = step.changes[0].index;
+                maxIndex = step.changes[step.changes.length-1].index;
+
+                // erase what ever is needed
+                ctx.clearRect(minIndex*sampleWidth, 0, (maxIndex-minIndex+1)*sampleWidth, canvas.height);
+                changed = true;
+
             }
 
-            // draw the rest
-            ctx.fillStyle = '#4E4EFF';
-            for (var i=0; i<step.values.length; i++) {
-                var sampleHeight = (step.values[i]*canvas.height)/largest;
-                if (step.focused != i)
-                    ctx.fillRect(i*sampleWidth,canvas.height-sampleHeight,sampleWidth,sampleHeight);
+            nextStep(previous, step);
+            if (changed) {
+                ctx.beginPath();
+                // fill in gap
+                for (var i=minIndex; i<=maxIndex; i++) {
+                    if (previous.focused != i) {
+                        var sampleHeight = Math.floor((previous.values[i]*canvas.height)/largest);
+                        ctx.moveTo(i*sampleWidth, canvas.height);
+                        ctx.lineTo(i*sampleWidth, canvas.height-sampleHeight);
+                        ctx.lineTo(i*sampleWidth+sampleWidth, canvas.height-sampleHeight);
+                        ctx.lineTo(i*sampleWidth+sampleWidth, canvas.height);
+                    }
+                }
+                ctx.fillStyle = '#4E4EFF';
+                ctx.fill();
+                ctx.closePath();
+            }
+
+            // draw out focused
+            if ('focused' in previous) {
+                ctx.fillStyle = '#FFC100';
+                var sampleHeight = Math.floor((previous.values[previous.focused]*canvas.height)/largest);
+                ctx.fillRect(previous.focused*sampleWidth, canvas.height-sampleHeight, sampleWidth, sampleHeight);
             }
         }
 
@@ -403,9 +445,7 @@
         function visualizeStep() {
         	//console.log("visualizing");
             if (index < frames.steps.length) {
-                //displayStep(steps[index]);
-                nextStep(current, frames.steps[index]);
-                displayStep(current);
+                displayStep(current, frames.steps[index]);
                 index++;
             } else {
             	//console.log("ending");
@@ -448,8 +488,9 @@
         var randomSamples;
 
         generateButton.addEventListener("click",function() {
-            var numSamplesSelect = document.getElementById("numSamples");
-            var numSamples = numSamplesSelect.options[numSamplesSelect.selectedIndex].value;
+            var blockSizeSelect = document.getElementById("blockSize");
+            var blockSize = blockSizeSelect.options[blockSizeSelect.selectedIndex].value;
+            var numSamples = Math.floor(canvas.width / blockSize);
             randomSamples = new Array();
             // populate
             for (var i=1; i<=numSamples; i++) {
