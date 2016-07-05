@@ -6,6 +6,14 @@ function roundedDown(i) {
     return (i-0.5)|0;
 }
 
+function swap(arr, i, j) {
+    if (i != j) {
+        arr[i] = arr[i] ^ arr[j];
+        arr[j] = arr[j] ^ arr[i];
+        arr[i] = arr[i] ^ arr[j];
+    }
+}
+
 function stepDiff(current, previous) {
     // diff should have the following:
     // * array of new values in certain indexes
@@ -64,9 +72,7 @@ function selectionSort(arrayInput) {
             }
         }
         if (iMin != j) {
-            var temp = arrayInput[j];
-            arrayInput[j] = arrayInput[iMin];
-            arrayInput[iMin] = temp;
+            swap(arr, iMin, j);
             frames.steps.push(stepDiff({'values': arrayInput.slice(0)}, previous));
             previous.values = arrayInput.slice(0);
         }
@@ -189,18 +195,14 @@ function partition(arr, l, h, frames, previous) {
         frames.steps.push(stepDiff({'values': arr.slice(0), 'focused': j}, previous));
         if (arr[j] <= x) {
             i++;
-            // swap
-            var temp = arr[i];
-            arr[i] = arr[j];
-            arr[j] = temp;
+
+            swap(arr, i, j);
             frames.steps.push(stepDiff({'values': arr.slice(0)}, previous));
             previous.values = arr.slice(0);
         }
     }
-    // swap
-    var temp = arr[i+1];
-    arr[i+1] = arr[h];
-    arr[h] = temp;
+
+    swap(arr, i+1, h);
     frames.steps.push(stepDiff({'values': arr.slice(0)}, previous));
     previous.values = arr.slice(0);
     return (i+1);
