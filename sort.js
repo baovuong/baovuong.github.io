@@ -158,8 +158,11 @@ function min(x,y) {
     return (x < y) ? x : y;
 }
 
-function mergeSort(arr, l=0, r=-1, frames=null, previous=null) {
-    if (r == -1 && frames == null) {
+function mergeSort(arr, l, r, frames, previous) {
+    // default parameters 
+    if (l==null) {l = 0;}
+
+    if (r == null && frames == null) {
         r = arr.length-1;
     }
     if (frames == null) {
@@ -203,8 +206,11 @@ function partition(arr, l, h, frames, previous) {
     return (i+1);
 }
 
-function quickSort(arr, l=0, h=-1, frames=null, previous=null) {
-    if (h == -1 && frames == null) {
+function quickSort(arr, l, h, frames, previous) {
+    // default parameters
+    if (l==null) {l=0;}
+
+    if (h == null && frames == null) {
         h = arr.length-1;
     }
     if (frames == null) {
