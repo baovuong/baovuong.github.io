@@ -57,6 +57,7 @@
                     <option value="shell">Shell Sort</option>
                     <option value="merge">Merge Sort</option>
                     <option value="quick">Quick Sort</option>
+                    <option value="heap">Heap Sort</option>
                     <!--<option value="counting">Counting Sort</option>-->
                 </select>
             </div>
@@ -263,6 +264,8 @@
                 frames = countingSort(randomSamples);
             else if (sortingAlgorithm == 'shell')
                 frames = shellSort(randomSamples);
+            else if (sortingAlgorithm == 'heap')
+                frames = heapSort(randomSamples);
             current = {'values': frames.initial.slice(0)};
             index = 0;
             sortingInterval = setInterval(visualizeStep,1);
