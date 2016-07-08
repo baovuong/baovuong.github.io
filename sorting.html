@@ -24,14 +24,6 @@
         }
     </style>
     <script type="text/javascript" src="sort.js"></script>
-    <script type="text/javascript">
-
-
-
-
-
-
-    </script>
 </head>
 
 <body>
@@ -263,6 +255,8 @@
                 frames = countingSort(randomSamples);
             else if (sortingAlgorithm == 'shell')
                 frames = shellSort(randomSamples);
+            cleanFrames(frames);
+            //console.log(frames);
             current = {'values': frames.initial.slice(0)};
             index = 0;
             sortingInterval = setInterval(visualizeStep,1);

@@ -46,6 +46,18 @@ function arrayToForm(array,paramName) {
     return result;
 }
 
+function cleanFrames(frames) {
+    var n = frames.steps.length;
+    for (var i=0; i<n; i++) {
+        //console.log(frames.steps);
+        if (frames.steps[i].changes.length == 0 && !('focused' in frames.steps[i]) && i != n-1) {
+            frames.steps.splice(i, 1);
+            i = 0;
+            n--;
+        }
+    }
+}
+
 function selectionSort(arrayInput) {
     var frames = {};
     frames.initial = arrayInput.slice(0);
@@ -292,11 +304,13 @@ function shellSort(arr) {
                 frames.steps.push(stepDiff({'values': arr.slice(0), 'focused': i-gap}, previous));
                 arr[j] = arr[j - gap];
                 frames.steps.push(stepDiff({'values': arr.slice(0)}, previous));
+                console.log(frames.steps.length);
                 previous = arr.slice(0);
             }
 
             arr[j] = temp;
             frames.steps.push(stepDiff({'values': arr.slice(0)}, previous));
+            console.log(frames.steps.length);
             previous = arr.slice(0);
         }
     }
