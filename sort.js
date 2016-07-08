@@ -56,11 +56,11 @@ function arrayToForm(array,paramName) {
 
 function cleanFrames(frames) {
     var n = frames.steps.length;
-    for (var i=0; i<n; i++) {
+    for (var i=0; i<n-1; i++) {
         //console.log(frames.steps);
-        if (frames.steps[i].changes.length == 0 && !('focused' in frames.steps[i]) && i != n-1) {
+        if (frames.steps[i].changes.length == 0 && !('focused' in frames.steps[i])) {
             frames.steps.splice(i, 1);
-            i = 0;
+            //i = 0;
             n--;
         }
     }
@@ -169,6 +169,7 @@ function merge(arr, l, m, r, frames, previous) {
         k++;
     }
     //steps.push({'values': arr.slice(0)});
+    //cleanFrames(frames);
     return frames;
 }
 
@@ -196,6 +197,7 @@ function mergeSort(arr, l, r, frames, previous) {
         mergeSort(arr, m+1, r, frames, previous);
         merge(arr, l, m, r, frames, previous);
     }
+    //cleanFrames(frames);
     return frames;
 }
 

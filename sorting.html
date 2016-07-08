@@ -283,9 +283,11 @@
                 frames = countingSort(randomSamples);
             else if (sortingAlgorithm == 'shell')
                 frames = shellSort(randomSamples);
-            cleanFrames(frames);
             else if (sortingAlgorithm == 'heap')
                 frames = heapSort(randomSamples);
+            console.log("uncleaned: "+frames.steps.length);
+            //cleanFrames(frames);
+            //console.log("cleaned: "+frames.steps.length);
             current = {'values': frames.initial.slice(0)};
             index = 0;
             sortingInterval = setInterval(visualizeStep,1);
