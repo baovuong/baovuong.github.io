@@ -6,6 +6,14 @@ function roundedDown(i) {
     return (i-0.5)|0;
 }
 
+function swap(arr, i, j) {
+    if (i != j) {
+        arr[i] = arr[i] ^ arr[j];
+        arr[j] = arr[j] ^ arr[i];
+        arr[i] = arr[i] ^ arr[j];
+    }
+}
+
 function stepDiff(current, previous) {
     // diff should have the following:
     // * array of new values in certain indexes
@@ -76,9 +84,7 @@ function selectionSort(arrayInput) {
             }
         }
         if (iMin != j) {
-            var temp = arrayInput[j];
-            arrayInput[j] = arrayInput[iMin];
-            arrayInput[iMin] = temp;
+            swap(arrayInput, iMin, j);
             frames.steps.push(stepDiff({'values': arrayInput.slice(0)}, previous));
             previous.values = arrayInput.slice(0);
         }
@@ -170,8 +176,11 @@ function min(x,y) {
     return (x < y) ? x : y;
 }
 
-function mergeSort(arr, l=0, r=-1, frames=null, previous=null) {
-    if (r == -1 && frames == null) {
+function mergeSort(arr, l, r, frames, previous) {
+    // default parameters
+    if (l==null) {l = 0;}
+
+    if (r == null && frames == null) {
         r = arr.length-1;
     }
     if (frames == null) {
@@ -198,25 +207,24 @@ function partition(arr, l, h, frames, previous) {
         frames.steps.push(stepDiff({'values': arr.slice(0), 'focused': j}, previous));
         if (arr[j] <= x) {
             i++;
-            // swap
-            var temp = arr[i];
-            arr[i] = arr[j];
-            arr[j] = temp;
+
+            swap(arr, i, j);
             frames.steps.push(stepDiff({'values': arr.slice(0)}, previous));
             previous.values = arr.slice(0);
         }
     }
-    // swap
-    var temp = arr[i+1];
-    arr[i+1] = arr[h];
-    arr[h] = temp;
+
+    swap(arr, i+1, h);
     frames.steps.push(stepDiff({'values': arr.slice(0)}, previous));
     previous.values = arr.slice(0);
     return (i+1);
 }
 
-function quickSort(arr, l=0, h=-1, frames=null, previous=null) {
-    if (h == -1 && frames == null) {
+function quickSort(arr, l, h, frames, previous) {
+    // default parameters
+    if (l==null) {l=0;}
+
+    if (h == null && frames == null) {
         h = arr.length-1;
     }
     if (frames == null) {
@@ -239,15 +247,13 @@ function bubbleSort(arr) {
     frames.steps = new Array();
     frames.initial = arr.slice(0);
     var previous = {'values': arr.slice(0)};
-    //steps.push({'values': arr.slice(0)});
+
     for (var i=0; i<arr.length-1; i++) {
         for (var j=0; j<arr.length-i-1; j++) {
             frames.steps.push(stepDiff({'values': arr.slice(0), 'focused': j}, previous));
             if (arr[j] > arr[j+1]) {
                 // swap
-                var temp = arr[j];
-                arr[j] = arr[j+1];
-                arr[j+1] = temp;
+                swap(arr, j, j+1);
                 frames.steps.push(stepDiff({'values': arr.slice(0)}, previous));
                 previous.values = arr.slice(0);
             }
@@ -273,7 +279,7 @@ function countingSort(arr) {
     for (var i=1; i<=arr.length; i++) {
         count[i] += count[i-1];
         frames.steps.push(stepDiff({'values': count.slice(0)}, previous));
-        previous = count.slice(0);
+        previous.values = count.slice(0);
     }
 
     for (var i=0; i < arr.length; i++) {
@@ -293,7 +299,7 @@ function shellSort(arr) {
     var frames = {};
     frames.initial = arr.slice(0);
     frames.steps = new Array();
-    var previous = arr.slice(0);
+    var previous = {'values': arr.slice(0)};
     var n = arr.length;
     for (var gap=n >> 1; gap > 0; gap = gap >> 1) {
         for (var i = gap; i < n; i++) {
@@ -304,16 +310,66 @@ function shellSort(arr) {
                 frames.steps.push(stepDiff({'values': arr.slice(0), 'focused': i-gap}, previous));
                 arr[j] = arr[j - gap];
                 frames.steps.push(stepDiff({'values': arr.slice(0)}, previous));
-                console.log(frames.steps.length);
-                previous = arr.slice(0);
+                previous.values = arr.slice(0);
             }
 
             arr[j] = temp;
             frames.steps.push(stepDiff({'values': arr.slice(0)}, previous));
-            console.log(frames.steps.length);
-            previous = arr.slice(0);
+
+            previous.values = arr.slice(0);
         }
     }
     frames.steps.push(stepDiff({'values': arr.slice(0)}, previous));
+    return frames;
+}
+
+
+function heapify(arr, n, i, frames, previous) {
+    var largest = i;
+    var l = 2*i + 1;
+    var r = 2*i + 2;
+
+    frames.steps.push(stepDiff({'values': arr.slice(0), 'focused': l}, previous));
+    if (l < n && arr[l] > arr[largest]) {
+        largest = l;
+    }
+
+    frames.steps.push(stepDiff({'values': arr.slice(0), 'focused': r}, previous));
+    if (r < n && arr[r] > arr[largest]) {
+        largest = r;
+    }
+
+    if (largest != i) {
+        swap(arr, i, largest);
+        frames.steps.push(stepDiff({'values': arr.slice(0)}, previous));
+        previous.values = arr.slice(0);
+        heapify(arr, n, largest, frames, previous);
+    }
+
+
+}
+
+function heapSort(arr) {
+    var frames = {};
+    frames.initial = arr.slice(0);
+    frames.steps = new Array();
+    var previous = {'values': arr.slice(0)};
+
+
+    var n = arr.length;
+    for (var i=roundedDown(n/2) - 1; i >= 0; i--) {
+        heapify(arr, n, i, frames, previous);
+    }
+
+    for (var i=n-1; i>=0; i--) {
+        swap(arr, 0, i);
+        frames.steps.push(stepDiff({'values': arr.slice(0)}, previous));
+        previous.values = arr.slice(0);
+
+        heapify(arr, i, 0, frames, previous);
+    }
+
+    frames.steps.push(stepDiff({'values': arr.slice(0)}, previous));
+
     return frames;
 }

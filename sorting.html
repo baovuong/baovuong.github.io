@@ -49,6 +49,7 @@
                     <option value="shell">Shell Sort</option>
                     <option value="merge">Merge Sort</option>
                     <option value="quick">Quick Sort</option>
+                    <option value="heap">Heap Sort</option>
                     <!--<option value="counting">Counting Sort</option>-->
                 </select>
             </div>
@@ -127,7 +128,10 @@
                 // erase
                 var sampleHeight = roundedUp((previous.values[previous.focused]*canvas.height)/largest);
                 ctx.fillStyle = '#4E4EFF';
-                ctx.fillRect(previous.focused*sampleWidth, canvas.height-sampleHeight, sampleWidth, sampleHeight);
+                ctx.beginPath();
+                ctx.rect(previous.focused*sampleWidth, canvas.height-sampleHeight, sampleWidth, sampleHeight);
+                ctx.fill();
+                ctx.closePath();
             }
             var changed = false;
             if (step.changes.length > 0) {
@@ -135,34 +139,58 @@
                 maxIndex = step.changes[step.changes.length-1].index;
 
                 // erase what ever is needed
-                ctx.clearRect(minIndex*sampleWidth, 0, (maxIndex-minIndex+1)*sampleWidth, canvas.height);
+                //ctx.clearRect(minIndex*sampleWidth, 0, (maxIndex-minIndex+1)*sampleWidth, canvas.height);
+                for (var i=0; i<step.changes.length; i++) {
+                    ctx.clearRect(step.changes[i].index*sampleWidth, 0, sampleWidth, canvas.height);
+                }
+
+
                 changed = true;
 
             }
 
             nextStep(previous, step);
             if (changed) {
+                ctx.fillStyle = '#4E4EFF';
                 ctx.beginPath();
                 // fill in gap
-                for (var i=minIndex; i<=maxIndex; i++) {
-                    if (previous.focused != i) {
-                        var sampleHeight = roundedUp((previous.values[i]*canvas.height)/largest);
-                        ctx.moveTo(i*sampleWidth, canvas.height);
-                        ctx.lineTo(i*sampleWidth, canvas.height-sampleHeight);
-                        ctx.lineTo(i*sampleWidth+sampleWidth, canvas.height-sampleHeight);
-                        ctx.lineTo(i*sampleWidth+sampleWidth, canvas.height);
-                    }
+                //for (var i=minIndex; i<=maxIndex; i++) {
+                //    if (previous.focused != i) {
+                //        var sampleHeight = roundedUp((previous.values[i]*canvas.height)/largest);
+                //        ctx.moveTo(i*sampleWidth, canvas.height);
+                //        ctx.lineTo(i*sampleWidth, canvas.height-sampleHeight);
+                //        ctx.lineTo(i*sampleWidth+sampleWidth, canvas.height-sampleHeight);
+                //        ctx.lineTo(i*sampleWidth+sampleWidth, canvas.height);
+                //    }
+                //}
+                for (var i=0; i<step.changes.length; i++) {
+                    var sampleHeight = roundedUp((step.changes[i].value*canvas.height)/largest);
+                    ctx.moveTo(step.changes[i].index*sampleWidth, canvas.height);
+                    ctx.lineTo(step.changes[i].index*sampleWidth, canvas.height-sampleHeight);
+                    ctx.lineTo(step.changes[i].index*sampleWidth+sampleWidth, canvas.height-sampleHeight);
+                    ctx.lineTo(step.changes[i].index*sampleWidth+sampleWidth, canvas.height);
+
+                    //ctx.moveTo(step.changes[i].index*sampleWidth, canvas.height);
                 }
-                ctx.fillStyle = '#4E4EFF';
-                ctx.fill();
+
                 ctx.closePath();
+                ctx.fill();
+
             }
 
             // draw out focused
             if ('focused' in previous) {
                 ctx.fillStyle = '#FFC100';
                 var sampleHeight = roundedUp((previous.values[previous.focused]*canvas.height)/largest);
-                ctx.fillRect(previous.focused*sampleWidth, canvas.height-sampleHeight, sampleWidth, sampleHeight);
+                ctx.beginPath();
+                ctx.moveTo(previous.focused*sampleWidth, canvas.height);
+                ctx.lineTo(previous.focused*sampleWidth, canvas.height-sampleHeight);
+                ctx.lineTo(previous.focused*sampleWidth+sampleWidth, canvas.height-sampleHeight);
+                ctx.lineTo(previous.focused*sampleWidth+sampleWidth, canvas.height);
+
+                //ctx.rect(previous.focused*sampleWidth, canvas.height-sampleHeight, sampleWidth, sampleHeight);
+                ctx.fill();
+                ctx.closePath();
             }
         }
 
@@ -256,7 +284,8 @@
             else if (sortingAlgorithm == 'shell')
                 frames = shellSort(randomSamples);
             cleanFrames(frames);
-            //console.log(frames);
+            else if (sortingAlgorithm == 'heap')
+                frames = heapSort(randomSamples);
             current = {'values': frames.initial.slice(0)};
             index = 0;
             sortingInterval = setInterval(visualizeStep,1);
