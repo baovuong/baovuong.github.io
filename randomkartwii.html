@@ -11,7 +11,7 @@
                     bottom: 0;
                     clear: both;
                 }
-                .empty: {
+                .desktop: {
                     display: none;
                 }
             }
@@ -22,7 +22,7 @@
         </style>
     </head>
     <body>
-        <div id="header" class="row">
+        <div id="header" class="row desktop">
             <div class="large-12 columns">
                 <h1>Random Kart Wii</h1>
             </div>
@@ -31,6 +31,7 @@
         <div class="row" id="controls">
             <div class="medium-3 large-3 columns">
                 <select>
+                    <option value="0">Players...</option>
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
@@ -39,6 +40,7 @@
             </div>
             <div class="medium-3 large-3 columns">
                 <select>
+                    <option value="0">Tracks...</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
                     <option value="4">4</option>
@@ -51,10 +53,15 @@
                 </select>
             </div>
             <div class="medium-3 large-3 columns">
-                <div class="switch">
+                <span style="vertical-align:middle;">test</span>
+                <span class="switch large">
                     <input class="switch-input" id="luigiCircuitFinalSwitch" type="checkbox">
-                    <label class="switch-paddle" for="luigiCircuitFinalSwitch"></label>
-                </div>
+                    <label class="switch-paddle" for="luigiCircuitFinalSwitch">
+                        <span class="show-for-sr">Luigi Circuit Final</span>
+                        <span class="switch-active" aria-hidden="true">Yes</span>
+                        <span class="switch-inactive" aria-hidden="true">No</span>
+                    </label>
+                </span>
             </div>
             <div class="small-12 medium-3 large-3 columns">
                 <button type="button" class="button">Make Selections</button>
