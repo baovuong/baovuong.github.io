@@ -2,14 +2,69 @@
     <head>
         <title>Random Kart Wii</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.0.1/css/foundation.css">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.0.1/js/foundation.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.0.1/js/vendor/jquery.min.js"></script>
+        <link rel="stylesheet" href="css/foundation.css">
+        <link rel="stylesheet" href="css/app.css">
+
     </head>
     <body>
-        <div class="row">
-            <div class="small-*">SMALL</div>
-            <div class="large-*">LARGE</div>
+        <div id="header" class="row">
+            <div class="small-*">
+                <h1>Random Kart Wii</h1>
+            </div>
         </div>
+        <div id="controls" style="position: fixed; bottom: 0;">
+            <div class="row">
+                <div class="small-* columns">
+                    <div class="input-group">
+                        <span class="input-group-label">Players</span>
+                        <select class="input-group-field">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="small-*">
+                    <div class="input-group">
+                        <span class="input-group-label">Tracks</span>
+                        <select class="input-group-field">
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="8">8</option>
+                            <option value="10">10</option>
+                            <option value="12">12</option>
+                            <option value="16">16</option>
+                            <option value="32">32</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="small-*">
+                    <div class="input-group">
+                        <span class="input-group-label">Luigi Circuit Final</span>
+                        <div class="switch">
+                            <input class="switch-input" id="luigiCircuitFinalSwitch" type="checkbox">
+                            <label class="switch-paddle" for="luigiCircuitFinalSwitch"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="small-*">
+                    <button type="button" class="button">Make Selections</button>
+                </div>
+            </div>
+        </div>
+
+        <script src="js/vendor/jquery.js"></script>
+        <script src="js/vendor/what-input.js"></script>
+        <script src="js/vendor/foundation.js"></script>
+        <script src="js/app.js"></script>
     </body>
 </html>

@@ -77,7 +77,6 @@ function selectionSort(arrayInput) {
         var iMin = j;
         for (var i = j+1; i<n; i++) {
             frames.steps.push(stepDiff({'values': arrayInput.slice(0), 'focused': i}, previous));
-            previous.values = arrayInput.slice(0);
 
             if (arrayInput[i] < arrayInput[iMin]) {
                 iMin = i;
