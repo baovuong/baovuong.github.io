@@ -30,7 +30,7 @@
 
         <div class="row" id="controls">
             <div class="medium-3 large-3 columns">
-                <select>
+                <select id="playerSelect">
                     <option value="0">Players...</option>
                     <option value="1">1</option>
                     <option value="2">2</option>
@@ -39,7 +39,7 @@
                 </select>
             </div>
             <div class="medium-3 large-3 columns">
-                <select>
+                <select id="trackSelect">
                     <option value="0">Tracks...</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
@@ -152,13 +152,53 @@
 
         var vehicles = [
             new Vehicle('Standard Kart S', VehicleType.KART, Size.SMALL),
+            new Vehicle('Booster Seat', VehicleType.KART, Size.SMALL),
+            new Vehicle('Mini Beast', VehicleType.KART, Size.SMALL),
+            new Vehicle('Cheep Charger', VehicleType.KART, Size.SMALL),
+            new Vehicle('Tiny Titan', VehicleType.KART, Size.SMALL),
+
+            new Vehicle('Standard Bike S', VehicleType.BIKE, Size.SMALL),
+            new Vehicle('Bullet Bike', VehicleType.BIKE, Size.SMALL),
+            new Vehicle('Bit Bike', VehicleType.BIKE, Size.SMALL),
+            new Vehicle('Quacker', VehicleType.BIKE, Size.SMALL),
+            new Vehicle('Magikruiser', VehicleType.BIKE, Size.SMALL),
+            new Vehicle('Jet Bubble', VehicleType.BIKE, Size.SMALL),
+
+            new Vehicle('Standard Kart M', VehicleType.KART, Size.MEDIUM),
+            new Vehicle('Classic Dragster', VehicleType.KART, Size.MEDIUM),
+            new Vehicle('Wild Wing', VehicleType.KART, Size.MEDIUM),
+            new Vehicle('Super Blooper', VehicleType.KART, Size.MEDIUM),
+            new Vehicle('Daytripper', VehicleType.KART, Size.MEDIUM),
+            new Vehicle('Sprinter', VehicleType.KART, Size.MEDIUM),
+
+            new Vehicle('Standard Bike M', VehicleType.BIKE, Size.MEDIUM),
+            new Vehicle('Mach Bike', VehicleType.BIKE, Size.MEDIUM),
+            new Vehicle('Sugarscoot', VehicleType.BIKE, Size.MEDIUM),
+            new Vehicle('Zip Zip', VehicleType.BIKE, Size.MEDIUM),
+            new Vehicle('Sneakster', VehicleType.BIKE, Size.MEDIUM),
+            new Vehicle('Dolphin Dasher', VehicleType.BIKE, Size.MEDIUM),
+
+            new Vehicle('Standard Kart L', VehicleType.KART, Size.LARGE),
+            new Vehicle('Offroader', VehicleType.KART, Size.LARGE),
+            new Vehicle('Flame Flyer', VehicleType.KART, Size.LARGE),
+            new Vehicle('Piranha Prowler', VehicleType.KART, Size.LARGE),
+            new Vehicle('Jetsetter', VehicleType.KART, Size.LARGE),
+            new Vehicle('Honeycoupe', VehicleType.KART, Size.LARGE),
+
+            new Vehicle('Standard Bike L', VehicleType.BIKE, Size.LARGE),
+            new Vehicle('Flame Runner', VehicleType.BIKE, Size.LARGE),
+            new Vehicle('Wario Bike', VehicleType.BIKE, Size.LARGE),
+            new Vehicle('Shooting Star', VehicleType.BIKE, Size.LARGE),
+            new Vehicle('Spear', VehicleType.BIKE, Size.LARGE),
+            new Vehicle('Phantom', VehicleType.BIKE, Size.LARGE)
         ];
 
         $(document).ready(function() {
             $('#makeSelectionsButton').click(function() {
-                for (var i=0; i<racers.length; i++) {
-                    console.log(racers[i].name);
-                    $('<div>' + racers[i].name + '</div>').appendTo('#output');
+                var numPlayers = parseInt(('#playerSelect option:selected').val());
+                var numTracks = parseInt(('#trackSelect option:selected').val());
+                var luigiCircuitLast = ('#luigiCircuitFinalSwitch').is(':checked');
+                
                 }
             });
         });
