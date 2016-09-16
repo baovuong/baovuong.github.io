@@ -64,11 +64,11 @@
                 </span>
             </div>
             <div class="small-12 medium-3 large-3 columns">
-                <button type="button" class="button">Make Selections</button>
+                <button id="makeSelectionsButton" type="button" class="button">Make Selections</button>
             </div>
         </div>
         <div class="row">
-            <div class="large-12 columns">
+            <div id="output" class="large-12 columns">
                 test output
             </div>
         </div>
@@ -76,5 +76,92 @@
         <script src="js/vendor/what-input.js"></script>
         <script src="js/vendor/foundation.js"></script>
         <script src="js/app.js"></script>
+        <script src="js/randomkartwii.js"></script>
+        <script>
+
+        var racers = [
+            new Racer('Baby Mario', Size.SMALL),
+            new Racer('Baby Peach', Size.SMALL),
+            new Racer('Toad', Size.SMALL),
+            new Racer('Koopa Troopa', Size.SMALL),
+            new Racer('Baby Luigi', Size.SMALL),
+            new Racer('Baby Daisy', Size.SMALL),
+            new Racer('Toadette', Size.SMALL),
+            new Racer('Dry Bones', Size.SMALL),
+
+            new Racer('Mario', Size.MEDIUM),
+            new Racer('Luigi', Size.MEDIUM),
+            new Racer('Peach', Size.MEDIUM),
+            new Racer('Yoshi', Size.MEDIUM),
+            new Racer('Daisy', Size.MEDIUM),
+            new Racer('Birdo', Size.MEDIUM),
+            new Racer('Diddy Kong', Size.MEDIUM),
+            new Racer('Bowser Jr.', Size.MEDIUM),
+
+            new Racer('Wario', Size.LARGE),
+            new Racer('Waluigi', Size.LARGE),
+            new Racer('Donkey Kong', Size.LARGE),
+            new Racer('Bowser', Size.LARGE),
+            new Racer('King Boo', Size.LARGE),
+            new Racer('Rosalina', Size.LARGE),
+            new Racer('Funky Kong', Size.LARGE),
+            new Racer('Dry Bowser', Size.LARGE)
+        ];
+
+        var tracks = [
+            new Track('Luigi Circuit', 'Mushroom'),
+            new Track('Moo Moo Meadows','Mushroom'),
+            new Track('Mushroom Gorge','Mushroom'),
+            new Track('Toad\'s Factory','Mushroom'),
+
+            new Track('Mario Circuit','Flower'),
+            new Track('Coconut Mall','Flower'),
+            new Track('DK Summit','Flower'),
+            new Track('Wario\'s Gold Mine','Flower'),
+
+            new Track('Daisy Circuit','Star'),
+            new Track('Koopa Cape','Star'),
+            new Track('Maple Treeway','Star'),
+            new Track('Grumble Volcano','Star'),
+
+            new Track('Dry Dry Ruins','Special'),
+            new Track('Moonview Highway','Special'),
+            new Track('Bowser\'s Castle','Special'),
+            new Track('Rainbow Road','Special'),
+
+            new Track('Peach Beach - GCN','Shell'),
+            new Track('Yoshi Falls - DS','Shell'),
+            new Track('Ghost Valley 2 - SNES','Shell'),
+            new Track('Mario Raceway - N64','Shell'),
+
+            new Track('Sherbet Land - N64','Banana'),
+            new Track('Shy Guy Beach - GBA','Banana'),
+            new Track('Delfino Square - DS','Banana'),
+            new Track('Waluigi Stadium - GCN','Banana'),
+
+            new Track('Desert Hills - DS','Leaf'),
+            new Track('Bowser Castle 3 - GBA','Leaf'),
+            new Track('DK\'s Jungle Parkway - N64','Leaf'),
+            new Track('Mario Circuit - GCN','Leaf'),
+
+            new Track('Mario Circuit 3 - SNES','Lightning'),
+            new Track('Peach Gardens - DS','Lightning'),
+            new Track('DK Mountain - GCN','Lightning'),
+            new Track('Bowser\'s Castle - N64','Lightning')
+        ];
+
+        var vehicles = [
+            new Vehicle('Standard Kart S', VehicleType.KART, Size.SMALL),
+        ];
+
+        $(document).ready(function() {
+            $('#makeSelectionsButton').click(function() {
+                for (var i=0; i<racers.length; i++) {
+                    console.log(racers[i].name);
+                    $('<div>' + racers[i].name + '</div>').appendTo('#output');
+                }
+            });
+        });
+        </script>
     </body>
 </html>
