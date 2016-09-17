@@ -11,9 +11,14 @@
                     bottom: 0;
                     clear: both;
                 }
+                #output {
+                    overflow-y: scroll;
+                }
+
                 .desktop: {
                     display: none;
                 }
+
             }
             .button {
                 display: block;
@@ -69,7 +74,16 @@
         </div>
         <div class="row">
             <div id="output" class="large-12 columns">
-                test output
+                <div class="row">
+                    <div id="playerOutput" class="large-6 medium-6 columns">
+                        <h2>Players</h2>
+                        <ol class="mobile-list"></ol>
+                    </div>
+                    <div id="trackOutput" class="large-6 medium-6 columns">
+                        <h2>Tracks</h2>
+                        <ol class="mobile-list"></ol>
+                    </div>
+                </div>
             </div>
         </div>
         <script src="js/vendor/jquery.js"></script>
@@ -193,14 +207,78 @@
             new Vehicle('Phantom', VehicleType.BIKE, Size.LARGE)
         ];
 
+        var racerOffset = 0;
+        var trackOffset = 0;
+
+        function updateOutputSize() {
+            $('#output').height(Math.abs(Math.floor($('#controls').position().top - $('#output').position().top)));
+        }
+
+        function presentPlayers(numPlayers) {
+            $('#playerOutput ol').empty();
+            for (var i=0; i<numPlayers; i++) {
+                if (racerOffset >= racers.length) {
+                    shuffle(racers);
+                    racerOffset = 0;
+                }
+
+                var racer = racers[racerOffset % racers.length];
+                racerOffset++;
+
+                var filteredVehicles = racer.drivableVehicles(vehicles);
+
+                var vehicle = filteredVehicles[Math.floor(Math.random() * filteredVehicles.length)];
+
+                $('#playerOutput ol').append('<li>' + racer.name + ' - ' + vehicle.name + '</li>');
+
+            }
+        }
+
+        function presentTracks(numTracks, luigiCircuitLast) {
+            $('#trackOutput ol').empty();
+            var maxTracks = numTracks-(luigiCircuitLast ? 1 : 0);
+            for (var i=0; i<maxTracks; i++) {
+                if (trackOffset >= tracks.length) {
+                    shuffle(tracks);
+                    trackOffset = 0;
+                }
+
+                var track = tracks[trackOffset % tracks.length].name;
+                trackOffset++;
+                if (track == 'Luigi Circuit' && luigiCircuitLast) {
+                    track = tracks[trackOffset % tracks.length].name;
+                    trackOffset++;
+                }
+
+                $('#trackOutput ol').append('<li>' + track + '</li>');
+            }
+
+            if (luigiCircuitLast) {
+                $('#trackOutput ol').append('<li>Luigi Circuit</li>');
+            }
+        }
+
         $(document).ready(function() {
             $('#makeSelectionsButton').click(function() {
-                var numPlayers = parseInt(('#playerSelect option:selected').val());
-                var numTracks = parseInt(('#trackSelect option:selected').val());
-                var luigiCircuitLast = ('#luigiCircuitFinalSwitch').is(':checked');
-                
+                var numPlayers = parseInt($('#playerSelect option:selected').val());
+                var numTracks = parseInt($('#trackSelect option:selected').val());
+                var luigiCircuitLast = $('#luigiCircuitFinalSwitch').is(':checked');
+
+                if (numPlayers*numTracks == 0) {
+                    alert('please provide all info');
+                } else {
+                    presentPlayers(numPlayers);
+                    presentTracks(numTracks, luigiCircuitLast);
                 }
             });
+
+            shuffle(racers);
+            shuffle(tracks);
+            updateOutputSize();
+        });
+
+        $(window).resize(function() {
+            updateOutputSize();
         });
         </script>
     </body>
