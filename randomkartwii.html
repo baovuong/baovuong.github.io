@@ -31,7 +31,7 @@
                 width: 100%;
             }
 
-            #output {
+            #output h2 {
                 visibility: hidden;
             }
 
@@ -279,8 +279,8 @@
                 if (numPlayers*numTracks == 0) {
                     alert('please provide all info');
                 } else {
-                    if ($('#output').css('visibility') == 'hidden') {
-                        $('#output').css('visibility', 'visible');
+                    if ($('#output h2').css('visibility') == 'hidden') {
+                        $('#output h2').css('visibility', 'visible');
                     }
                     presentPlayers(numPlayers);
                     presentTracks(numTracks, luigiCircuitLast);
