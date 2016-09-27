@@ -4,7 +4,7 @@
     <body>
         <canvas id="box2d" width="960" height="480" backgroundColor="2A3038"></canvas>
         <script src="js/Box2d.min.js"></script>
-        <script>
+        <script onload="init();">
             var canvas = document.getElementById('box2d');
             var ctx = canvas.getContext('2d');
             var world;
@@ -45,6 +45,28 @@
                 
                 fixDef.shape.SetAsBox((600 / SCALE)/2, (10/SCALE)/2);
                 world.CreateBody(bodyDef).CreateFixture(fixDef);
+                
+                // objects
+                bodyDef.type = b2Body.b2_dynamicBody;
+                for (var i=0; i<100; i++) {
+                    fixDef.shape = new b2PolygonShape;
+                    fixDef.shape.SetAsBox(Math.random() + 0.1, Math.random() + 0. 1);
+                    
+                    bodyDef.position.x = Math.random() * 25;
+                    bodyDef.position.y = Math.random() * 10;
+                    world.CreateBody(bodyDef).CreateFixture(fixDef);
+                }
+                
+                // drawing
+                var debugDraw = new b2DebugDraw();
+                debugDraw.SetSprite(ctx);
+                debugDraw.SetDrawScale(SCALE);
+                debugDraw.SetFillAlpha(0.3);
+                debugDraw.SetLineThickness(1.0);
+                debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
+                world.SetDebugDraw(debugDraw);
+                
+                window.setInterval(update, 1000 / 60);
             }
             
             function update() {
@@ -53,9 +75,9 @@
                     10,
                     10
                 );
+                world.DrawDebugData();
+                world.ClearForces();
             }
-            
-            init();
         </script>
     </body>
 </html>
