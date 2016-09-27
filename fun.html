@@ -56,7 +56,7 @@
         bodyDef.type = b2Body.b2_dynamicBody;
         for (var i = 0; i < 50; ++i) {
             fixDef.shape = new b2CircleShape(
-                Math.random() + 0.1 //radius
+                Math.random() + 3 //radius
             );
             bodyDef.position.x = Math.random() * 10;
             bodyDef.position.y = Math.random() * 10;
