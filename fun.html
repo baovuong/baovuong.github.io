@@ -89,8 +89,8 @@
             if (b.GetType() == b2Body.b2_dynamicBody) {
                 var radius;
                 var shape = b.GetFixtureList().GetShape();
-                if (shape.GetType == b2CircleShape) {
-                    radius = shape.GetRadius();
+                if (shape.GetType() == b2CircleShape) {
+                    radius = shape.GetRadius()*30;
                 } else {
                     radius = 20;
                 }
