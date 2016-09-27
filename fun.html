@@ -81,9 +81,7 @@
             , 10 //velocity iterations
             , 10 //position iterations
         );
-        world.DrawDebugData();
 
-        world.ClearForces();
         
         ctx.clearRect(0, 0, 600, 400);
         
@@ -106,6 +104,9 @@
                 ctx.restore();
             }
         }
+                world.DrawDebugData();
+
+        world.ClearForces();
     };
 </script>
 
