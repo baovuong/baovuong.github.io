@@ -54,7 +54,7 @@
 
         //create some objects
         bodyDef.type = b2Body.b2_dynamicBody;
-        for (var i = 0; i < 10; ++i) {
+        for (var i = 0; i < 100; ++i) {
             if (Math.random() > 0.5) {
                 fixDef.shape = new b2PolygonShape;
                 fixDef.shape.SetAsBox(
@@ -101,7 +101,7 @@
                 ctx.save();
                 ctx.translate(pos.x * 30, pos.y * 30);
                 ctx.rotate(b.GetAngle());
-                ctx.drawImage(head1, 10, 10, 20, 20);
+                ctx.drawImage(head1, 50, 50, 100, 100);
                 ctx.restore();
             }
         }
