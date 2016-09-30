@@ -9,28 +9,220 @@
 </body>
 <script type="text/javascript" src="js/Box2D.js"></script>
 <script type="text/javascript">
-        var b2Vec2 = Box2D.Common.Math.b2Vec2,
-            b2BodyDef = Box2D.Dynamics.b2BodyDef,
-            b2Body = Box2D.Dynamics.b2Body,
-            b2FixtureDef = Box2D.Dynamics.b2FixtureDef,
-            b2Fixture = Box2D.Dynamics.b2Fixture,
-            b2World = Box2D.Dynamics.b2World,
-            b2MassData = Box2D.Collision.Shapes.b2MassData,
-            b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape,
-            b2CircleShape = Box2D.Collision.Shapes.b2CircleShape,
-            b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
+    var b2Vec2 = Box2D.Common.Math.b2Vec2,
+        b2BodyDef = Box2D.Dynamics.b2BodyDef,
+        b2Body = Box2D.Dynamics.b2Body,
+        b2FixtureDef = Box2D.Dynamics.b2FixtureDef,
+        b2Fixture = Box2D.Dynamics.b2Fixture,
+        b2World = Box2D.Dynamics.b2World,
+        b2MassData = Box2D.Collision.Shapes.b2MassData,
+        b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape,
+        b2CircleShape = Box2D.Collision.Shapes.b2CircleShape,
+        b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
+    
+    function ImageBox(world, ctx, src, widthScale, heightScale) {
+        this.image = new Image(src);
+    }
+    ImageBox.prototype.render=function(ctx) {
+        
+    };
+    
+    function ImageBall(world, src, width, height, x, y) {
+		var body = null;
+		this.width = width;
+		this.height = height;
+		this.image = new Image();
+		this.image.src = src;
+		
+		// body
+		var bodyDef = new b2BodyDef();
+		bodyDef.type = b2Body.b2_dynamicBody;
+		bodyDef.position.x = x;
+		bodyDef.position.y = y;
+		this.body = world.CreateBody(bodyDef);
+
+		// fixtures
+		var fixDef = new b2FixtureDef();
+		fixDef.shape = new b2PolygonShape();
+		var vectors = new Array();
+		var angle = Math.atan(this.height/this.width);
+		var mh = this.height*Math.sin(angle);
+		var mw = this.width*Math.cos(angle);
+		
+		vectors.push(new b2Vec2(-1 * width, 0));
+		vectors.push(new b2Vec2(-1*mw, -1*mh));
+		
+		vectors.push(new b2Vec2(0, -1 * height));
+		vectors.push(new b2Vec2(mw, -1*mh));
+		
+		vectors.push(new b2Vec2(width, 0));
+		vectors.push(new b2Vec2(mw, mh));
+		
+		vectors.push(new b2Vec2(0, height));
+		vectors.push(new b2Vec2(-1*mw, mh));
+		
+		fixDef.shape.SetAsArray(vectors);
+		fixDef.density = 1;
+		this.body.CreateFixture(fixDef);        
+    }
+    ImageBall.prototype.render=function(ctx, scale) {
+		var pos = this.body.GetPosition();
+		this.image.height = this.height*scale;
+		this.image.width = this.width*scale;
+        ctx.save();
+        ctx.translate(pos.x*scale, pos.y*scale);
+        ctx.rotate(this.body.GetAngle());
+        ctx.drawImage(this.image, -1*this.image.width, -1*this.image.height, this.image.width*2, this.image.height*2);
+		ctx.restore();
+    };
+    
+	function Ball(world, radius, x, y) {
+		this.body = null;
+		this.radius = radius;
+
+		// body
+		var bodyDef = new b2BodyDef();
+		bodyDef.type = b2Body.b2_dynamicBody;
+		bodyDef.position.x = x;
+		bodyDef.position.y = y;
+		this.body = world.CreateBody(bodyDef);
+
+		// fixture
+		var shape = new b2CircleShape(radius);
+		var fixDef = new b2FixtureDef();
+		fixDef.shape = shape;
+		fixDef.density = 1;
+		this.body.CreateFixture(fixDef);
+	}
+	Ball.prototype.render = function(ctx, scale) {
+		var pos = this.body.GetPosition();
+		var radius = this.radius * scale;
+		ctx.save();
+		ctx.strokeStyle = "#000000";
+		ctx.translate(pos.x * scale, pos.y * scale);
+		ctx.rotate(this.body.GetAngle());
+		ctx.beginPath();
+		ctx.arc(0, 0, radius, 0, 2 * Math.PI);
+		ctx.closePath();
+		ctx.stroke();
+		ctx.beginPath();
+		ctx.arc(radius - (radius / 5), 0, radius / 10, 0, 2 * Math.PI);
+		ctx.closePath();
+		ctx.stroke();
+		ctx.restore();
+	};
+
+	function Egg(world, width, height, x, y) {
+		var body = null;
+		this.width = width;
+		this.height = height;
+
+		// body
+		var bodyDef = new b2BodyDef();
+		bodyDef.type = b2Body.b2_dynamicBody;
+		bodyDef.position.x = x;
+		bodyDef.position.y = y;
+		this.body = world.CreateBody(bodyDef);
+
+		// fixtures
+		var fixDef = new b2FixtureDef();
+		fixDef.shape = new b2PolygonShape();
+		var vectors = new Array();
+		var angle = Math.atan(this.height/this.width);
+		var mh = this.height*Math.sin(angle);
+		var mw = this.width*Math.cos(angle);
+		
+		vectors.push(new b2Vec2(-1 * width, 0));
+		vectors.push(new b2Vec2(-1*mw, -1*mh));
+		
+		vectors.push(new b2Vec2(0, -1 * height));
+		vectors.push(new b2Vec2(mw, -1*mh));
+		
+		vectors.push(new b2Vec2(width, 0));
+		vectors.push(new b2Vec2(mw, mh));
+		
+		vectors.push(new b2Vec2(0, height));
+		vectors.push(new b2Vec2(-1*mw, mh));
+		
+		fixDef.shape.SetAsArray(vectors);
+		fixDef.density = 1;
+		this.body.CreateFixture(fixDef);
+		// center fixture
+
+
+	}
+	Egg.prototype.render = function(ctx, scale) {
+		var pos = this.body.GetPosition();
+		ctx.save();
+		ctx.strokeStyle = '#000000';
+		ctx.translate(pos.x * scale, pos.y * scale);
+		ctx.rotate(this.body.GetAngle());
+		ctx.beginPath();
+		ctx.ellipse(0, 0, this.width*scale, this.height*scale, 0, 0, 2 * Math.PI);
+		ctx.stroke();
+		ctx.closePath();
+		ctx.restore();
+	};
+
+	function Box(world, width, height, x, y) {
+		this.body = null;
+		this.width = width;
+		this.height = height;
+
+		// body
+		var bodyDef = new b2BodyDef();
+		bodyDef.type = b2Body.b2_dynamicBody;
+		bodyDef.position.x = x;
+		bodyDef.position.y = y;
+		this.body = world.CreateBody(bodyDef);
+
+		// fixture
+		var shape = new b2PolygonShape();
+		shape.SetAsBox(width, height, 0.5);
+		var fixDef = new b2FixtureDef();
+		fixDef.shape = shape;
+		fixDef.density = 1;
+		this.body.CreateFixture(fixDef);
+	}
+
+	Box.prototype.render = function(ctx, scale) {
+		var pos = this.body.GetPosition();
+		ctx.save();
+		ctx.strokeStyle = '#000000';
+		ctx.translate(pos.x * scale, pos.y * scale);
+		ctx.rotate(this.body.GetAngle());
+		ctx.beginPath();
+		ctx.moveTo(-1 * this.width * scale, -1 * this.height * scale);
+		ctx.lineTo(this.width * scale, -1 * this.height * scale);
+		ctx.lineTo(this.width * scale, this.height * scale);
+		ctx.lineTo(-1 * this.width * scale, this.height * scale);
+		ctx.lineTo(-1 * this.width * scale, -1 * this.height * scale);
+		ctx.closePath();
+		ctx.stroke();
+		ctx.restore();
+	};
+    
+    
     var world;
     var canvas = document.getElementById('canvas');
     var ctx = canvas.getContext('2d');
     
+    var things = new Array();
+
     var head1 = new Image();
     head1.src = 'img/trump_head_1.png';
+    //head1.src = 'img/seamus1.jpg';
 
     var head2 = new Image();
     head2.src = 'img/trump_head_2.png';
-
+    //head2.src = 'img/download.jpg';
     function init() {
+        window.onresize=function() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
 
+        window.onresize();
 
         world = new b2World(
             new b2Vec2(0, 10) //gravity
@@ -53,21 +245,30 @@
         world.CreateBody(bodyDef).CreateFixture(fixDef);
 
         //create some objects
-        bodyDef.type = b2Body.b2_dynamicBody;
+        //bodyDef.type = b2Body.b2_dynamicBody;
         for (var i = 0; i < 50; ++i) {
+            /*
             fixDef.shape = new b2CircleShape(
                 Math.random() + 0.5 //radius
             );
+            if (Math.random() > 0.5) {
+                bodyDef.thingy = head1;
+            } else {
+                bodyDef.thingy = head2;
+            }
             bodyDef.position.x = Math.random() * 10;
             bodyDef.position.y = Math.random() * 10;
             world.CreateBody(bodyDef).CreateFixture(fixDef);
+            */
+            var thing = new ImageBall(world, 'img/download.jpg', Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10);
+            things.push(thing);
         }
 
         //setup debug draw
         var debugDraw = new b2DebugDraw();
-        debugDraw.SetSprite(document.getElementById("canvas").getContext("2d"));
+        debugDraw.SetSprite(ctx);
         debugDraw.SetDrawScale(30.0);
-        debugDraw.SetFillAlpha(0.3);
+        debugDraw.SetFillAlpha(0.1);
         debugDraw.SetLineThickness(1.0);
         debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
         world.SetDebugDraw(debugDraw);
@@ -81,31 +282,15 @@
             , 10 //velocity iterations
             , 10 //position iterations
         );
+        
 
-        
-        ctx.clearRect(0, 0, 600, 400);
-        
-        for (b = world.GetBodyList(); b; b = b.GetNext()) {
-            if (b.GetType() == b2Body.b2_dynamicBody) {
-                var radius;
-                var shape = b.GetFixtureList().GetShape();
-                radius = shape.GetRadius()*30;
-                head1.height = radius*2;
-                
-                var pos = b.GetPosition();
-                ctx.save();
-                ctx.translate(pos.x*30, pos.y*30);
-                ctx.rotate(b.GetAngle());
-                ctx.beginPath();
-                ctx.arc(0, 0, radius, 0, 2*Math.PI);
-                ctx.stroke();
-                ctx.drawImage(head1, -1*head1.height/2, -1*head1.height/2, head1.height, head1.height);
-                ctx.restore();
-            }
-        }
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         //world.DrawDebugData();
-
+        for (var i=0; i<things.length; i++) {
+            things[i].render(ctx, 30);
+        }        
         world.ClearForces();
+
     };
 </script>
 
