@@ -20,11 +20,37 @@
         b2CircleShape = Box2D.Collision.Shapes.b2CircleShape,
         b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
     
-    function ImageBox(world, ctx, src, widthScale, heightScale) {
-        this.image = new Image(src);
+    function ImageBox(world, src, width, height, x, y) {
+        this.image = new Image();
+		this.image.src = src;
+		this.body = null;
+		this.width = width;
+		this.height = height;
+
+		// body
+		var bodyDef = new b2BodyDef();
+		bodyDef.type = b2Body.b2_dynamicBody;
+		bodyDef.position.x = x;
+		bodyDef.position.y = y;
+		this.body = world.CreateBody(bodyDef);
+
+		// fixture
+		var shape = new b2PolygonShape();
+		shape.SetAsBox(width, height, 0.5);
+		var fixDef = new b2FixtureDef();
+		fixDef.shape = shape;
+		fixDef.density = 1;
+		this.body.CreateFixture(fixDef);
     }
-    ImageBox.prototype.render=function(ctx) {
-        
+    ImageBox.prototype.render=function(ctx, scale) {
+		var pos = this.body.GetPosition();
+		this.image.height = this.height*scale;
+		this.image.width = this.width*scale;
+        ctx.save();
+        ctx.translate(pos.x*scale, pos.y*scale);
+        ctx.rotate(this.body.GetAngle());
+        ctx.drawImage(this.image, -1*this.image.width, -1*this.image.height, this.image.width*2, this.image.height*2);
+		ctx.restore();        
     };
     
     function ImageBall(world, src, width, height, x, y) {
@@ -45,7 +71,7 @@
 		var fixDef = new b2FixtureDef();
 		fixDef.shape = new b2PolygonShape();
 		var vectors = new Array();
-		var angle = Math.atan(this.height/this.width);
+		var angle = Math.PI/3; //Math.atan(this.height/this.width);
 		var mh = this.height*Math.sin(angle);
 		var mw = this.width*Math.cos(angle);
 		
@@ -128,7 +154,7 @@
 		var fixDef = new b2FixtureDef();
 		fixDef.shape = new b2PolygonShape();
 		var vectors = new Array();
-		var angle = Math.atan(this.height/this.width);
+		var angle = Math.PI/4; //Math.atan(this.height/this.width);
 		var mh = this.height*Math.sin(angle);
 		var mw = this.width*Math.cos(angle);
 		
@@ -201,6 +227,11 @@
 		ctx.stroke();
 		ctx.restore();
 	};
+
+	function randomInt(min, max) {
+		// inclusive random
+		return Math.floor(Math.random() * (max - min + 1) + min);
+	}
     
     
     var world;
@@ -246,30 +277,46 @@
 
         //create some objects
         //bodyDef.type = b2Body.b2_dynamicBody;
-        for (var i = 0; i < 50; ++i) {
-            /*
-            fixDef.shape = new b2CircleShape(
-                Math.random() + 0.5 //radius
-            );
-            if (Math.random() > 0.5) {
-                bodyDef.thingy = head1;
-            } else {
-                bodyDef.thingy = head2;
-            }
-            bodyDef.position.x = Math.random() * 10;
-            bodyDef.position.y = Math.random() * 10;
-            world.CreateBody(bodyDef).CreateFixture(fixDef);
-            */
-            var thing = new ImageBall(world, 'img/download.jpg', Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10);
-            things.push(thing);
+        for (var i = 0; i < 100; ++i) {
+			var choice = randomInt(0,5);
+			switch (choice) {
+				case 0:
+				things.push(new ImageBall(world, 'img/trump2.png', Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10));
+				break;
+
+				case 1:
+				things.push(new ImageBall(world, 'img/trump_head_1.png', Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10));
+				break;
+
+				case 2:
+				things.push(new ImageBox(world, 'img/seamus1.jpg', Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10));
+				break;
+
+				case 3:
+				things.push(new ImageBox(world, 'img/download.jpg', Math.random()+1, Math.random()+1, Math.random()*10, Math.random()*10));
+				break;
+
+				case 4:
+				things.push(new Box(world, Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10));
+				break;
+
+				case 5:
+				things.push(new Ball(world, Math.random()+0.5, Math.random()*10, Math.random()*10));
+				break;
+
+				default:
+				break;
+			}
+			//var  thing = new Egg(world, Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10);
         }
 
         //setup debug draw
         var debugDraw = new b2DebugDraw();
         debugDraw.SetSprite(ctx);
         debugDraw.SetDrawScale(30.0);
-        debugDraw.SetFillAlpha(0.1);
-        debugDraw.SetLineThickness(1.0);
+        debugDraw.SetFillAlpha(1);
+		debugDraw.SetAlpha(1);
+        debugDraw.SetLineThickness(3.0);
         debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
         world.SetDebugDraw(debugDraw);
 
