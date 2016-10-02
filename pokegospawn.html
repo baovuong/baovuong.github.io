@@ -1,0 +1,187 @@
+<html>
+<head>
+    <title>PG Spawn Points</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="description"/>
+    <meta name="author">
+    <link rel="stylesheet" href="css/foundation.min.css">
+
+    <style>
+    #map {
+        height: 75%;
+    }
+    .button {
+        display: block;
+        width: 100%;
+    }
+
+    #statusbar {
+        background-color: black;
+        color: white;
+    }
+    </style>
+
+</head>
+<body>
+
+    <div class="row">
+        <div class="small-12 columns" id="statusbar">
+            status
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="small-12 columns">
+            <div id="map">
+
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="small-9 columns">
+            <select id="searchselection">
+            </select>
+        </div>
+        <div class="small-3 small-centered columns">
+            <button id="search" type="button" class="button">
+                Search
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="small-12 columns">
+            <a href="#" class="button" data-open="recordModal">Record Location</a>
+            <div class="reveal" id="recordModal" data-reveal>
+                <div class="row">
+                    <div class="small-12 columns"><h3>Entry</h3></div>
+                </div>
+
+                <div class="row">
+                    <div class="small-12 columns">        
+                        <label>What did you catch?
+                            <select id="recordselection">
+                            </select>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="small-3 columns ">         
+                        <label>latitude
+                            <input type="number" id="latinput">
+                        </label>
+                    </div>
+                    <div class="small-3 columns ">                        
+                        <label>longitude
+                            <input type="number" id="loninput">
+                        </label>
+                    </div>
+                    <div class="small-6 columns">
+                        <label>don't know your coordinates?
+                            <button class="secondary button">Get Location</button>
+                        </label>
+                    </div>
+                </div>
+
+
+                
+                <div class="row">
+                    <div class="small-12 columns">
+                        <label>When?
+                            <input type="datetime-local" id="datetimeinput">
+                        </label>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="small-12 columns">         
+                        <button class="button" type="button" id="entrysubmit">
+                            Submit
+                        </button>
+                    </div>
+                </div>
+
+                <button class="close-button" data-close aria-label="Close modal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div id="footer">
+        <div class="row">
+            <div class="small-12 small-centered columns text-center">
+                please don't sue 2016       
+            </div>
+        </div>
+    </div>
+    <script src="js/jquery.js"></script>
+    <script src="js/foundation.min.js"></script>
+    <script src="js/what-input.js"></script>
+    <script>
+    // start foundation
+
+    //$('#myModal').foundation('open');
+    // variables
+    var locations = new Array();
+    var map;
+    var recordoptions = $('#recordselection');
+    var searchoptions = $('#searchselection');
+
+    function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: {lat: -34.397, lng: 150.644},
+            zoom: 8
+        });
+
+        var yourLocation = new google.maps.InfoWindow({map: map});
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var pos = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+
+                yourLocation.setPosition(pos);
+                yourLocation.setContent('you are here');
+                map.setCenter(pos);
+                map.setZoom(10);
+            }, function(){
+                // error code
+                //alert('couldn\'t grab a thing');
+            });
+        }
+    }
+
+    // event handling
+    $('#search').onclick = function() {
+        var pokemonnumber = pokemonselection.options[pokemonselection.selectedIndex].value;
+
+    };
+
+    //recordbutton.onclick = function() {
+
+    //};
+    $(document).ready(function() {
+        $(document).foundation();
+
+        // populate select stuffs
+        $.get('https://bvworks.lv5.org:8004/api/pokemon', function(data, status) {
+
+            var pokemon = data.pokemon;
+            $.each(pokemon, function() {
+                recordoptions.append($('<option />').val(this.number).text('#'+this.number+' - '+this.name));
+                searchoptions.append($('<option />').val(this.number).text('#'+this.number+' - '+this.name));
+            });
+        });
+    });
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBezFCU4R2EfmONBhUdP3xfP4Q7x6Nprf0&callback=initMap" async defer></script>
+</body>
+</html>

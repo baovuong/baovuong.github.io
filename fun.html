@@ -1,0 +1,455 @@
+<html>
+
+<head>
+    <title>Box2dWeb example</title>
+</head>
+
+<body onload="init();">
+    <canvas id="canvas" width="600" height="400"></canvas>
+</body>
+<script type="text/javascript" src="js/Box2D.js"></script>
+<script type="text/javascript">
+
+    var b2Vec2 = Box2D.Common.Math.b2Vec2,
+        b2BodyDef = Box2D.Dynamics.b2BodyDef,
+        b2Body = Box2D.Dynamics.b2Body,
+        b2FixtureDef = Box2D.Dynamics.b2FixtureDef,
+        b2Fixture = Box2D.Dynamics.b2Fixture,
+        b2World = Box2D.Dynamics.b2World,
+        b2MassData = Box2D.Collision.Shapes.b2MassData,
+        b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape,
+        b2CircleShape = Box2D.Collision.Shapes.b2CircleShape,
+        b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
+	
+	function pad(n, width, z) {
+	z = z || '0';
+	n = n + '';
+	return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+	}	
+
+	function RGBHexToValues(hex) {
+		// has to look like this: #rrggbb
+		return {
+			r: parseInt(hex.substring(1, 3), 16),
+			g: parseInt(hex.substring(3, 5), 16),
+			b: parseInt(hex.substring(5, 7), 16)
+		}
+	}
+
+	function RGBValuesToHex(values) {
+		return '#' + pad(values.r.toString(16), 2) + pad(values.g.toString(16), 2) + pad(values.b.toString(16), 2);
+	}
+
+	function HSVtoRGB(h, s, v) {
+		var r, g, b, i, f, p, q, t;
+		if (arguments.length === 1) {
+			s = h.s, v = h.v, h = h.h;
+		}
+		i = Math.floor(h * 6);
+		f = h * 6 - i;
+		p = v * (1 - s);
+		q = v * (1 - f * s);
+		t = v * (1 - (1 - f) * s);
+		switch (i % 6) {
+			case 0: r = v, g = t, b = p; break;
+			case 1: r = q, g = v, b = p; break;
+			case 2: r = p, g = v, b = t; break;
+			case 3: r = p, g = q, b = v; break;
+			case 4: r = t, g = p, b = v; break;
+			case 5: r = v, g = p, b = q; break;
+		}
+		return {
+			r: Math.round(r * 255),
+			g: Math.round(g * 255),
+			b: Math.round(b * 255)
+		};
+	}
+	function RGBtoHSV(r, g, b) {
+		if (arguments.length === 1) {
+			g = r.g, b = r.b, r = r.r;
+		}
+		var max = Math.max(r, g, b), min = Math.min(r, g, b),
+			d = max - min,
+			h,
+			s = (max === 0 ? 0 : d / max),
+			v = max / 255;
+
+		switch (max) {
+			case min: h = 0; break;
+			case r: h = (g - b) + d * (g < b ? 6: 0); h /= 6 * d; break;
+			case g: h = (b - r) + d * 2; h /= 6 * d; break;
+			case b: h = (r - g) + d * 4; h /= 6 * d; break;
+		}
+
+		return {
+			h: h,
+			s: s,
+			v: v
+		};
+	}
+
+    function ImageBox(world, src, width, height, x, y) {
+        this.image = new Image();
+		this.image.src = src;
+		this.body = null;
+		this.width = width;
+		this.height = height;
+
+		// body
+		var bodyDef = new b2BodyDef();
+		bodyDef.type = b2Body.b2_dynamicBody;
+		bodyDef.position.x = x;
+		bodyDef.position.y = y;
+		this.body = world.CreateBody(bodyDef);
+
+		// fixture
+		var shape = new b2PolygonShape();
+		shape.SetAsBox(width, height, 0.5);
+		var fixDef = new b2FixtureDef();
+		fixDef.shape = shape;
+		fixDef.density = 1;
+		this.body.CreateFixture(fixDef);
+    }
+    ImageBox.prototype.render=function(ctx, scale) {
+		var pos = this.body.GetPosition();
+		this.image.height = this.height*scale;
+		this.image.width = this.width*scale;
+        ctx.save();
+        ctx.translate(pos.x*scale, pos.y*scale);
+        ctx.rotate(this.body.GetAngle());
+        ctx.drawImage(this.image, -1*this.image.width, -1*this.image.height, this.image.width*2, this.image.height*2);
+		ctx.restore();        
+    };
+    
+    function ImageBall(world, src, width, height, x, y) {
+		var body = null;
+		this.width = width;
+		this.height = height;
+		this.image = new Image();
+		this.image.src = src;
+		
+		// body
+		var bodyDef = new b2BodyDef();
+		bodyDef.type = b2Body.b2_dynamicBody;
+		bodyDef.position.x = x;
+		bodyDef.position.y = y;
+		this.body = world.CreateBody(bodyDef);
+
+		// fixtures
+		var fixDef = new b2FixtureDef();
+		fixDef.shape = new b2PolygonShape();
+		var vectors = new Array();
+		var angle = Math.PI/3; //Math.atan(this.height/this.width);
+		var mh = this.height*Math.sin(angle);
+		var mw = this.width*Math.cos(angle);
+		
+		vectors.push(new b2Vec2(-1 * width, 0));
+		vectors.push(new b2Vec2(-1*mw, -1*mh));
+		
+		vectors.push(new b2Vec2(0, -1 * height));
+		vectors.push(new b2Vec2(mw, -1*mh));
+		
+		vectors.push(new b2Vec2(width, 0));
+		vectors.push(new b2Vec2(mw, mh));
+		
+		vectors.push(new b2Vec2(0, height));
+		vectors.push(new b2Vec2(-1*mw, mh));
+		
+		fixDef.shape.SetAsArray(vectors);
+		fixDef.density = 1;
+		this.body.CreateFixture(fixDef);        
+    }
+    ImageBall.prototype.render=function(ctx, scale) {
+		var pos = this.body.GetPosition();
+		this.image.height = this.height*scale;
+		this.image.width = this.width*scale;
+        ctx.save();
+        ctx.translate(pos.x*scale, pos.y*scale);
+        ctx.rotate(this.body.GetAngle());
+        ctx.drawImage(this.image, -1*this.image.width, -1*this.image.height, this.image.width*2, this.image.height*2);
+		ctx.restore();
+    };
+    
+	function Ball(world, radius, x, y) {
+		this.body = null;
+		this.radius = radius;
+
+		// body
+		var bodyDef = new b2BodyDef();
+		bodyDef.type = b2Body.b2_dynamicBody;
+		bodyDef.position.x = x;
+		bodyDef.position.y = y;
+		this.body = world.CreateBody(bodyDef);
+
+		// fixture
+		var shape = new b2CircleShape(radius);
+		var fixDef = new b2FixtureDef();
+		fixDef.shape = shape;
+		fixDef.density = 1;
+		this.body.CreateFixture(fixDef);
+	}
+	Ball.prototype.render = function(ctx, scale) {
+		var pos = this.body.GetPosition();
+		var radius = this.radius * scale;
+		ctx.save();
+		ctx.strokeStyle = "#000000";
+		ctx.translate(pos.x * scale, pos.y * scale);
+		ctx.rotate(this.body.GetAngle());
+		ctx.beginPath();
+		ctx.arc(0, 0, radius, 0, 2 * Math.PI);
+		ctx.closePath();
+		ctx.stroke();
+		ctx.beginPath();
+		ctx.arc(radius - (radius / 5), 0, radius / 10, 0, 2 * Math.PI);
+		ctx.closePath();
+		ctx.stroke();
+		ctx.restore();
+	};
+
+	function ColoredBall(world, color, radius, x, y) {
+		Ball.call(this, world, radius, x, y);
+		this.mainColor = color;
+		this.otherColor = null;
+
+		var threshold = 0.5;
+		var rgbValues = RGBHexToValues(color);
+		var hsv = RGBtoHSV(rgbValues.r, rgbValues.g, rgbValues.b);
+		this.otherColor = RGBValuesToHex(HSVtoRGB(hsv.h, hsv.s, hsv.v + (hsv.v > threshold ? -0.1 : 0.1)));
+	}
+	ColoredBall.prototype = Object.create(Ball.prototype);
+	ColoredBall.prototype.constructor = ColoredBall;
+
+	ColoredBall.prototype.render=function(ctx, scale) {
+		var pos = this.body.GetPosition();
+		var radius = this.radius * scale;
+		ctx.save();
+
+		ctx.translate(pos.x * scale, pos.y * scale);
+		ctx.rotate(this.body.GetAngle());
+		ctx.beginPath();
+		ctx.arc(0, 0, radius, 0, 2 * Math.PI);
+		ctx.closePath();
+		ctx.fillStyle = this.mainColor;
+		ctx.fill();
+
+		ctx.beginPath();
+		ctx.arc(radius - (radius / 5), 0, radius / 10, 0, 2 * Math.PI);
+		ctx.closePath();
+		ctx.fillStyle = this.otherColor;
+		ctx.fill();
+		ctx.restore();		
+	}
+
+	function Egg(world, width, height, x, y) {
+		var body = null;
+		this.width = width;
+		this.height = height;
+
+		// body
+		var bodyDef = new b2BodyDef();
+		bodyDef.type = b2Body.b2_dynamicBody;
+		bodyDef.position.x = x;
+		bodyDef.position.y = y;
+		this.body = world.CreateBody(bodyDef);
+
+		// fixtures
+		var fixDef = new b2FixtureDef();
+		fixDef.shape = new b2PolygonShape();
+		var vectors = new Array();
+		var angle = Math.PI/4; //Math.atan(this.height/this.width);
+		var mh = this.height*Math.sin(angle);
+		var mw = this.width*Math.cos(angle);
+		
+		vectors.push(new b2Vec2(-1 * width, 0));
+		vectors.push(new b2Vec2(-1*mw, -1*mh));
+		
+		vectors.push(new b2Vec2(0, -1 * height));
+		vectors.push(new b2Vec2(mw, -1*mh));
+		
+		vectors.push(new b2Vec2(width, 0));
+		vectors.push(new b2Vec2(mw, mh));
+		
+		vectors.push(new b2Vec2(0, height));
+		vectors.push(new b2Vec2(-1*mw, mh));
+		
+		fixDef.shape.SetAsArray(vectors);
+		fixDef.density = 1;
+		this.body.CreateFixture(fixDef);
+		// center fixture
+
+
+	}
+	Egg.prototype.render = function(ctx, scale) {
+		var pos = this.body.GetPosition();
+		ctx.save();
+		ctx.strokeStyle = '#000000';
+		ctx.translate(pos.x * scale, pos.y * scale);
+		ctx.rotate(this.body.GetAngle());
+		ctx.beginPath();
+		ctx.ellipse(0, 0, this.width*scale, this.height*scale, 0, 0, 2 * Math.PI);
+		ctx.stroke();
+		ctx.closePath();
+		ctx.restore();
+	};
+
+	function Box(world, width, height, x, y) {
+		this.body = null;
+		this.width = width;
+		this.height = height;
+
+		// body
+		var bodyDef = new b2BodyDef();
+		bodyDef.type = b2Body.b2_dynamicBody;
+		bodyDef.position.x = x;
+		bodyDef.position.y = y;
+		this.body = world.CreateBody(bodyDef);
+
+		// fixture
+		var shape = new b2PolygonShape();
+		shape.SetAsBox(width, height, 0.5);
+		var fixDef = new b2FixtureDef();
+		fixDef.shape = shape;
+		fixDef.density = 1;
+		this.body.CreateFixture(fixDef);
+	}
+
+	Box.prototype.render = function(ctx, scale) {
+		var pos = this.body.GetPosition();
+		ctx.save();
+		ctx.strokeStyle = '#000000';
+		ctx.translate(pos.x * scale, pos.y * scale);
+		ctx.rotate(this.body.GetAngle());
+		ctx.beginPath();
+		ctx.moveTo(-1 * this.width * scale, -1 * this.height * scale);
+		ctx.lineTo(this.width * scale, -1 * this.height * scale);
+		ctx.lineTo(this.width * scale, this.height * scale);
+		ctx.lineTo(-1 * this.width * scale, this.height * scale);
+		ctx.lineTo(-1 * this.width * scale, -1 * this.height * scale);
+		ctx.closePath();
+		ctx.stroke();
+		ctx.restore();
+	};
+
+	function randomInt(min, max) {
+		// inclusive random
+		return Math.floor(Math.random() * (max - min + 1) + min);
+	}
+    
+    
+    var world;
+    var canvas = document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
+    
+    var things = new Array();
+
+    var head1 = new Image();
+    head1.src = 'img/trump_head_1.png';
+    //head1.src = 'img/seamus1.jpg';
+
+    var head2 = new Image();
+    head2.src = 'img/trump_head_2.png';
+    //head2.src = 'img/download.jpg';
+    function init() {
+        window.onresize=function() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
+
+        window.onresize();
+
+        world = new b2World(
+            new b2Vec2(0, 10) //gravity
+            , true //allow sleep
+        );
+
+        var fixDef = new b2FixtureDef;
+        fixDef.density = 1.0;
+        fixDef.friction = 0.5;
+        fixDef.restitution = 0.2;
+
+        var bodyDef = new b2BodyDef;
+
+        //create room
+        bodyDef.type = b2Body.b2_staticBody;
+        bodyDef.position.x = 9;
+        bodyDef.position.y = 13;
+        fixDef.shape = new b2PolygonShape;
+        fixDef.shape.SetAsBox(10, 0.5);
+        world.CreateBody(bodyDef).CreateFixture(fixDef);
+
+        //create some objects
+        //bodyDef.type = b2Body.b2_dynamicBody;
+        for (var i = 0; i < 200; ++i) {
+			var choice = randomInt(0,6);
+			switch (choice) {
+				case 0:
+				things.push(new ImageBall(world, 'img/trump2.png', Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10));
+				break;
+
+				case 1:
+				things.push(new ImageBall(world, 'img/trump_head_1.png', Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10));
+				break;
+
+				case 2:
+				things.push(new ImageBox(world, 'img/seamus1.jpg', Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10));
+				break;
+
+				case 3:
+				things.push(new ImageBox(world, 'img/download.jpg', Math.random()+1, Math.random()+1, Math.random()*10, Math.random()*10));
+				break;
+
+				case 4:
+				things.push(new Box(world, Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10));
+				break;
+
+				case 5:
+				things.push(new Ball(world, Math.random()+0.5, Math.random()*10, Math.random()*10));
+				break;				
+
+				case 6:
+				var rgb = {
+					r: Math.floor(Math.random()*255),
+					g: Math.floor(Math.random()*255),
+					b: Math.floor(Math.random()*255)
+				};
+				things.push(new ColoredBall(world, RGBValuesToHex(rgb), Math.random()+0.5, Math.random()*10, Math.random()*10));
+				break;
+
+				default:
+				break;
+			}
+        }
+
+        //setup debug draw
+        var debugDraw = new b2DebugDraw();
+        debugDraw.SetSprite(ctx);
+        debugDraw.SetDrawScale(30.0);
+        debugDraw.SetFillAlpha(1);
+		debugDraw.SetAlpha(1);
+        debugDraw.SetLineThickness(3.0);
+        debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
+        world.SetDebugDraw(debugDraw);
+
+        window.setInterval(update, 1000 / 60);
+    };
+
+    function update() {
+        world.Step(
+            1 / 60 //frame-rate
+            , 10 //velocity iterations
+            , 10 //position iterations
+        );
+        
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        //world.DrawDebugData();
+        for (var i=0; i<things.length; i++) {
+            things[i].render(ctx, 30);
+        }        
+        world.ClearForces();
+
+    };
+</script>
+
+
+</html>

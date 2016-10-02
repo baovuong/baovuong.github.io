@@ -1,0 +1,301 @@
+<html>
+    <head>
+        <title>Random Kart Wii</title>
+        <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+        <link rel="stylesheet" href="css/foundation.css">
+        <link rel="stylesheet" href="css/app.css">
+        <style>
+            @media only screen and (max-width: 40em) {
+                #controls {
+                    position: absolute;
+                    bottom: 0;
+                    clear: both;
+                    
+                }
+                #output {
+                    overflow-y: scroll;
+                    border-top-color: grey;
+                    border-top-style: solid;
+                    border-top-width: 1px;
+                    border-bottom-color: grey;
+                    border-bottom-style: solid;
+                    border-bottom-width: 1px;
+                }
+
+                .desktop: {
+                    display: none;
+                }
+            }
+            .button {
+                display: block;
+                width: 100%;
+            }
+
+            #output h2 {
+                visibility: hidden;
+            }
+
+            #header {
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="header" class="row desktop">
+            <div class="large-12 columns">
+                <h1>Random Kart Wii</h1>
+            </div>
+        </div>
+
+        <div class="row" id="controls">
+            <div class="medium-3 large-3 columns">
+                <select id="playerSelect">
+                    <option value="1">1 player</option>
+                    <option value="2">2 players</option>
+                    <option value="3">3 players</option>
+                    <option value="4" selected="selected">4 players</option>
+                </select>
+            </div>
+            <div class="medium-3 large-3 columns">
+                <select id="trackSelect">
+                    <option value="2">2 tracks</option>
+                    <option value="3">3 tracks</option>
+                    <option value="4" selected="selected">4 tracks</option>
+                    <option value="5">5 tracks</option>
+                    <option value="8">8 tracks</option>
+                    <option value="10">10 tracks</option>
+                    <option value="12">12 tracks</option>
+                    <option value="16">16 tracks</option>
+                    <option value="32">32 tracks</option>
+                </select>
+            </div>
+            <div class="medium-3 large-3 columns">
+                <span style="vertical-align:middle;">Luigi Circuit Final</span>
+                <span class="switch large" style="float:right;">
+                    <input checked class="switch-input" id="luigiCircuitFinalSwitch" type="checkbox">
+                    <label class="switch-paddle" for="luigiCircuitFinalSwitch">
+                        <span class="show-for-sr">Luigi Circuit Final</span>
+                        <span class="switch-active" aria-hidden="true">Yes</span>
+                        <span class="switch-inactive" aria-hidden="true">No</span>
+                    </label>
+                </span>
+            </div>
+            <div class="small-12 medium-3 large-3 columns">
+                <button id="makeSelectionsButton" type="button" class="button">Make Selections</button>
+            </div>
+        </div>
+        <div class="row">
+            <div id="output" class="large-12 columns">
+                <div class="row">
+                    <div id="playerOutput" class="large-6 medium-6 columns">
+                        <h2>Players</h2>
+                        <ol></ol>
+                    </div>
+                    <div id="trackOutput" class="large-6 medium-6 columns">
+                        <h2>Tracks</h2>
+                        <ol></ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="http://bvworks.lv5.org:8016/track.js"></script>
+        <script src="js/vendor/jquery.js"></script>
+        <script src="js/vendor/what-input.js"></script>
+        <script src="js/vendor/foundation.js"></script>
+        <script src="js/app.js"></script>
+        <script src="js/randomkartwii.js"></script>
+        <script>
+
+        var racers = [
+            new Racer('Baby Mario', Size.SMALL),
+            new Racer('Baby Peach', Size.SMALL),
+            new Racer('Toad', Size.SMALL),
+            new Racer('Koopa Troopa', Size.SMALL),
+            new Racer('Baby Luigi', Size.SMALL),
+            new Racer('Baby Daisy', Size.SMALL),
+            new Racer('Toadette', Size.SMALL),
+            new Racer('Dry Bones', Size.SMALL),
+
+            new Racer('Mario', Size.MEDIUM),
+            new Racer('Luigi', Size.MEDIUM),
+            new Racer('Peach', Size.MEDIUM),
+            new Racer('Yoshi', Size.MEDIUM),
+            new Racer('Daisy', Size.MEDIUM),
+            new Racer('Birdo', Size.MEDIUM),
+            new Racer('Diddy Kong', Size.MEDIUM),
+            new Racer('Bowser Jr.', Size.MEDIUM),
+
+            new Racer('Wario', Size.LARGE),
+            new Racer('Waluigi', Size.LARGE),
+            new Racer('Donkey Kong', Size.LARGE),
+            new Racer('Bowser', Size.LARGE),
+            new Racer('King Boo', Size.LARGE),
+            new Racer('Rosalina', Size.LARGE),
+            new Racer('Funky Kong', Size.LARGE),
+            new Racer('Dry Bowser', Size.LARGE)
+        ];
+
+        var tracks = [
+            new Track('Luigi Circuit', 'Mushroom'),
+            new Track('Moo Moo Meadows','Mushroom'),
+            new Track('Mushroom Gorge','Mushroom'),
+            new Track('Toad\'s Factory','Mushroom'),
+
+            new Track('Mario Circuit','Flower'),
+            new Track('Coconut Mall','Flower'),
+            new Track('DK Summit','Flower'),
+            new Track('Wario\'s Gold Mine','Flower'),
+
+            new Track('Daisy Circuit','Star'),
+            new Track('Koopa Cape','Star'),
+            new Track('Maple Treeway','Star'),
+            new Track('Grumble Volcano','Star'),
+
+            new Track('Dry Dry Ruins','Special'),
+            new Track('Moonview Highway','Special'),
+            new Track('Bowser\'s Castle','Special'),
+            new Track('Rainbow Road','Special'),
+
+            new Track('Peach Beach - GCN','Shell'),
+            new Track('Yoshi Falls - DS','Shell'),
+            new Track('Ghost Valley 2 - SNES','Shell'),
+            new Track('Mario Raceway - N64','Shell'),
+
+            new Track('Sherbet Land - N64','Banana'),
+            new Track('Shy Guy Beach - GBA','Banana'),
+            new Track('Delfino Square - DS','Banana'),
+            new Track('Waluigi Stadium - GCN','Banana'),
+
+            new Track('Desert Hills - DS','Leaf'),
+            new Track('Bowser Castle 3 - GBA','Leaf'),
+            new Track('DK\'s Jungle Parkway - N64','Leaf'),
+            new Track('Mario Circuit - GCN','Leaf'),
+
+            new Track('Mario Circuit 3 - SNES','Lightning'),
+            new Track('Peach Gardens - DS','Lightning'),
+            new Track('DK Mountain - GCN','Lightning'),
+            new Track('Bowser\'s Castle - N64','Lightning')
+        ];
+
+        var vehicles = [
+            new Vehicle('Standard Kart S', VehicleType.KART, Size.SMALL),
+            new Vehicle('Booster Seat', VehicleType.KART, Size.SMALL),
+            new Vehicle('Mini Beast', VehicleType.KART, Size.SMALL),
+            new Vehicle('Cheep Charger', VehicleType.KART, Size.SMALL),
+            new Vehicle('Tiny Titan', VehicleType.KART, Size.SMALL),
+
+            new Vehicle('Standard Bike S', VehicleType.BIKE, Size.SMALL),
+            new Vehicle('Bullet Bike', VehicleType.BIKE, Size.SMALL),
+            new Vehicle('Bit Bike', VehicleType.BIKE, Size.SMALL),
+            new Vehicle('Quacker', VehicleType.BIKE, Size.SMALL),
+            new Vehicle('Magikruiser', VehicleType.BIKE, Size.SMALL),
+            new Vehicle('Jet Bubble', VehicleType.BIKE, Size.SMALL),
+
+            new Vehicle('Standard Kart M', VehicleType.KART, Size.MEDIUM),
+            new Vehicle('Classic Dragster', VehicleType.KART, Size.MEDIUM),
+            new Vehicle('Wild Wing', VehicleType.KART, Size.MEDIUM),
+            new Vehicle('Super Blooper', VehicleType.KART, Size.MEDIUM),
+            new Vehicle('Daytripper', VehicleType.KART, Size.MEDIUM),
+            new Vehicle('Sprinter', VehicleType.KART, Size.MEDIUM),
+
+            new Vehicle('Standard Bike M', VehicleType.BIKE, Size.MEDIUM),
+            new Vehicle('Mach Bike', VehicleType.BIKE, Size.MEDIUM),
+            new Vehicle('Sugarscoot', VehicleType.BIKE, Size.MEDIUM),
+            new Vehicle('Zip Zip', VehicleType.BIKE, Size.MEDIUM),
+            new Vehicle('Sneakster', VehicleType.BIKE, Size.MEDIUM),
+            new Vehicle('Dolphin Dasher', VehicleType.BIKE, Size.MEDIUM),
+
+            new Vehicle('Standard Kart L', VehicleType.KART, Size.LARGE),
+            new Vehicle('Offroader', VehicleType.KART, Size.LARGE),
+            new Vehicle('Flame Flyer', VehicleType.KART, Size.LARGE),
+            new Vehicle('Piranha Prowler', VehicleType.KART, Size.LARGE),
+            new Vehicle('Jetsetter', VehicleType.KART, Size.LARGE),
+            new Vehicle('Honeycoupe', VehicleType.KART, Size.LARGE),
+
+            new Vehicle('Standard Bike L', VehicleType.BIKE, Size.LARGE),
+            new Vehicle('Flame Runner', VehicleType.BIKE, Size.LARGE),
+            new Vehicle('Wario Bike', VehicleType.BIKE, Size.LARGE),
+            new Vehicle('Shooting Star', VehicleType.BIKE, Size.LARGE),
+            new Vehicle('Spear', VehicleType.BIKE, Size.LARGE),
+            new Vehicle('Phantom', VehicleType.BIKE, Size.LARGE)
+        ];
+
+        var racerOffset = 0;
+        var trackOffset = 0;
+
+        function updateOutputSize() {
+            $('#output').height(Math.abs(Math.floor($('#controls').position().top - $('#output').position().top))-5);
+        }
+
+        function presentPlayers(numPlayers) {
+            $('#playerOutput ol').empty();
+            for (var i=0; i<numPlayers; i++) {
+                if (racerOffset >= racers.length) {
+                    shuffle(racers);
+                    racerOffset = 0;
+                }
+
+                var racer = racers[racerOffset % racers.length];
+                racerOffset++;
+
+                var filteredVehicles = racer.drivableVehicles(vehicles);
+
+                var vehicle = filteredVehicles[Math.floor(Math.random() * filteredVehicles.length)];
+
+                $('#playerOutput ol').append('<li>' + racer.name + ' - ' + vehicle.name + '</li>');
+
+            }
+        }
+
+        function presentTracks(numTracks, luigiCircuitLast) {
+            $('#trackOutput ol').empty();
+            var maxTracks = numTracks-(luigiCircuitLast ? 1 : 0);
+            for (var i=0; i<maxTracks; i++) {
+                if (trackOffset >= tracks.length) {
+                    shuffle(tracks);
+                    trackOffset = 0;
+                }
+
+                var track = tracks[trackOffset % tracks.length].name;
+                trackOffset++;
+                if (track == 'Luigi Circuit' && luigiCircuitLast) {
+                    track = tracks[trackOffset % tracks.length].name;
+                    trackOffset++;
+                }
+
+                $('#trackOutput ol').append('<li>' + track + '</li>');
+            }
+
+            if (luigiCircuitLast) {
+                $('#trackOutput ol').append('<li>Luigi Circuit</li>');
+            }
+        }
+
+        $(document).ready(function() {
+            $('#makeSelectionsButton').click(function() {
+                var numPlayers = parseInt($('#playerSelect option:selected').val());
+                var numTracks = parseInt($('#trackSelect option:selected').val());
+                var luigiCircuitLast = $('#luigiCircuitFinalSwitch').is(':checked');
+
+                if (numPlayers*numTracks == 0) {
+                    alert('please provide all info');
+                } else {
+                    if ($('#output h2').css('visibility') == 'hidden') {
+                        $('#output h2').css('visibility', 'visible');
+                    }
+                    presentPlayers(numPlayers);
+                    presentTracks(numTracks, luigiCircuitLast);
+                }
+            });
+
+            shuffle(racers);
+            shuffle(tracks);
+            updateOutputSize();
+        });
+
+        $(window).resize(function() {
+            updateOutputSize();
+        });
+        </script>
+    </body>
+</html>
