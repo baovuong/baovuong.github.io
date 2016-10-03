@@ -424,11 +424,11 @@
 				break;
 
 				case 4:
-				things.push(new ImageBox(world, 'img/clinton1.png', Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10));
+				things.push(new ImageBall(world, 'img/clinton1.png', Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10));
 				break;
 
 				case 5:
-				things.push(new ImageBox(world, 'img/clinton2.png', Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10));
+				things.push(new ImageBall(world, 'img/clinton2.png', Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10));
 				break;
 
 				case 6:
@@ -475,7 +475,7 @@
         
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        //world.DrawDebugData();
+        world.DrawDebugData();
         for (var i=0; i<things.length; i++) {
             things[i].render(ctx, 30);
         }        
