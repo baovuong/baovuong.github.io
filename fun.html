@@ -424,12 +424,12 @@
 				break;
 
 				case 4:
-				things.push(new Box(world, Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10));
+				things.push(new ImageBox(world, 'img/clinton1.png', Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10));
 				break;
 
 				case 5:
-				//things.push(new Ball(world, Math.random()+0.5, x, y));
-				//break;				
+				things.push(new ImageBox(world, 'img/clinton2.png', Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10));
+				break;
 
 				case 6:
 				var rgb = {
@@ -439,6 +439,14 @@
 				};
 				things.push(new ColoredBall(world, RGBValuesToHex(rgb), Math.random()+0.5, Math.random()*10, Math.random()*10));
 				break;
+
+				case 7:
+				things.push(new Box(world, Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10));
+				break;		
+
+				case 8:
+				things.push(new Ball(world, Math.random()+0.5, Math.random()*10, Math.random()*10));
+				break;			
 
 				default:
 				break;
