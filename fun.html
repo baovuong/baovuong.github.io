@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <title>Box2dWeb example</title>
+    <title>Fun with Physics</title>
 </head>
 
 <body onload="init();">
@@ -87,6 +87,34 @@
 			v: v
 		};
 	}
+
+	function Color() {
+		this.r;
+		this.g;
+		this.b;
+	}
+	Color.prototype.getHex=function() {
+
+	};
+	Color.prototype.getRGB=function() {
+		return {
+			r: this.r,
+			g: this.g,
+			b: this.b,
+		};
+	};
+	Color.prototype.getHSV=function() {
+
+	};
+	Color.prototype.setHex=function(hex) {
+
+	};
+	Color.prototype.setRGB=function(rgb) {
+
+	};
+	Color.prototype.setHSV=function(hsv) {
+
+	};
 
     function ImageBox(world, src, width, height, x, y) {
         this.image = new Image();
@@ -399,12 +427,12 @@
 				break;
 
 				case 4:
-				things.push(new Box(world, Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10));
+				things.push(new ImageBox(world, 'img/clinton1.png', Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10));
 				break;
 
 				case 5:
-				things.push(new Ball(world, Math.random()+0.5, Math.random()*10, Math.random()*10));
-				break;				
+				things.push(new ImageBox(world, 'img/clinton2.png', Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10));
+				break;
 
 				case 6:
 				var rgb = {
@@ -414,6 +442,14 @@
 				};
 				things.push(new ColoredBall(world, RGBValuesToHex(rgb), Math.random()+0.5, Math.random()*10, Math.random()*10));
 				break;
+
+				case 7:
+				things.push(new Box(world, Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10));
+				break;		
+
+				case 8:
+				things.push(new Ball(world, Math.random()+0.5, Math.random()*10, Math.random()*10));
+				break;			
 
 				default:
 				break;
