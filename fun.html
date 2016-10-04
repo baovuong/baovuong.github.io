@@ -19,7 +19,9 @@
         b2MassData = Box2D.Collision.Shapes.b2MassData,
         b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape,
         b2CircleShape = Box2D.Collision.Shapes.b2CircleShape,
-        b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
+        b2DebugDraw = Box2D.Dynamics.b2DebugDraw,
+		b2Transform = Box2D.Common.Math.b2Transform,
+		b2Mat22 = Box2D.Common.Math.b2Mat22;
 	
 	function pad(n, width, z) {
 	z = z || '0';
@@ -378,14 +380,8 @@
     var ctx = canvas.getContext('2d');
     
     var things = new Array();
+	var mouseBody;
 
-    var head1 = new Image();
-    head1.src = 'img/trump_head_1.png';
-    //head1.src = 'img/seamus1.jpg';
-
-    var head2 = new Image();
-    head2.src = 'img/trump_head_2.png';
-    //head2.src = 'img/download.jpg';
     function init() {
         window.onresize=function() {
             canvas.width = window.innerWidth;
@@ -393,15 +389,34 @@
         };
 
         window.onresize();
-
-        world = new b2World(
+        
+		world = new b2World(
             new b2Vec2(0, 15) //gravity
             , true //allow sleep
         );
+		
+		var bodyDef = new b2BodyDef();
+		bodyDef.type = b2Body.b2_staticBody;
+		bodyDef.position.x = 0.02 * canvas.width/2;
+		bodyDef.position.y = 0.02 * canvas.height/2;
+		mouseBody = world.CreateBody(bodyDef);
+
+		var fixDef = new b2FixtureDef();
+		fixDef.shape = new b2CircleShape(0.1);
+		fixDef.density = 1;
+		mouseBody.CreateFixture(fixDef);
+
+		canvas.addEventListener('mousemove', function(evt) {
+			var rect = canvas.getBoundingClientRect();
+			var x = evt.pageX/30;// - rect.left;
+			var y = evt.pageY/30;// - rect.top;
+			mouseBody.SetTransform(new b2Transform(new b2Vec2(x, y), new b2Mat22(new b2Vec2(0, 0), new b2Vec2(0, 0))));
+		});
+
+
 		things.push(new Platform(world, canvas.width/100, 0.5, 10, 19));
 
         //create some objects
-        //bodyDef.type = b2Body.b2_dynamicBody;
         for (var i = 0; i < 300; ++i) {
 			var x = Math.random() * canvas.width;
 			var y = Math.random() * canvas.height;
@@ -457,8 +472,8 @@
         var debugDraw = new b2DebugDraw();
         debugDraw.SetSprite(ctx);
         debugDraw.SetDrawScale(30.0);
-        debugDraw.SetFillAlpha(1);
-		debugDraw.SetAlpha(1);
+        debugDraw.SetFillAlpha(0.5);
+		debugDraw.SetAlpha(0.5);
         debugDraw.SetLineThickness(3.0);
         debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
         world.SetDebugDraw(debugDraw);
