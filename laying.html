@@ -1,0 +1,191 @@
+<html>
+
+<head>
+    <title>Laying the Eggs</title>
+</head>
+
+<body onload="init();">
+    <canvas id="canvas" width="600" height="400"></canvas>
+</body>
+<script type="text/javascript" src="js/Box2D.js"></script>
+<script type="text/javascript">
+    var b2Vec2 = Box2D.Common.Math.b2Vec2,
+        b2BodyDef = Box2D.Dynamics.b2BodyDef,
+        b2Body = Box2D.Dynamics.b2Body,
+        b2FixtureDef = Box2D.Dynamics.b2FixtureDef,
+        b2Fixture = Box2D.Dynamics.b2Fixture,
+        b2World = Box2D.Dynamics.b2World,
+        b2MassData = Box2D.Collision.Shapes.b2MassData,
+        b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape,
+        b2CircleShape = Box2D.Collision.Shapes.b2CircleShape,
+        b2DebugDraw = Box2D.Dynamics.b2DebugDraw,
+		b2Transform = Box2D.Common.Math.b2Transform,
+		b2Mat22 = Box2D.Common.Math.b2Mat22;
+    
+    function ImageBall(world, src, width, height, x, y) {
+		var body = null;
+		this.width = width;
+		this.height = height;
+		this.image = new Image();
+		this.image.src = src;
+		
+		// body
+		var bodyDef = new b2BodyDef();
+		bodyDef.type = b2Body.b2_dynamicBody;
+		bodyDef.position.x = x;
+		bodyDef.position.y = y;
+		this.body = world.CreateBody(bodyDef);
+
+		// fixtures
+		var fixDef = new b2FixtureDef();
+		fixDef.shape = new b2PolygonShape();
+		var vectors = new Array();
+		var angle = Math.PI/3; //Math.atan(this.height/this.width);
+		var mh = this.height*Math.sin(angle);
+		var mw = this.width*Math.cos(angle);
+		
+		vectors.push(new b2Vec2(-1 * width, 0));
+		vectors.push(new b2Vec2(-1*mw, -1*mh));
+		
+		vectors.push(new b2Vec2(0, -1 * height));
+		vectors.push(new b2Vec2(mw, -1*mh));
+		
+		vectors.push(new b2Vec2(width, 0));
+		vectors.push(new b2Vec2(mw, mh));
+		
+		vectors.push(new b2Vec2(0, height));
+		vectors.push(new b2Vec2(-1*mw, mh));
+		
+		fixDef.shape.SetAsArray(vectors);
+		fixDef.density = 1;
+		this.body.CreateFixture(fixDef);        
+    }
+    ImageBall.prototype.render=function(ctx, scale) {
+		var pos = this.body.GetPosition();
+		this.image.height = this.height*scale;
+		this.image.width = this.width*scale;
+        ctx.save();
+        ctx.translate(pos.x*scale, pos.y*scale);
+        ctx.rotate(this.body.GetAngle());
+        ctx.drawImage(this.image, -1*this.image.width, -1*this.image.height, this.image.width*2, this.image.height*2);
+		ctx.restore();
+    };
+
+
+	function Platform(world, width, height, x, y) {
+		this.body = null;
+		this.width = width;
+		this.height = height;
+
+		// body
+		var bodyDef = new b2BodyDef();
+		bodyDef.type = b2Body.b2_staticBody;
+		bodyDef.position.x = x;
+		bodyDef.position.y = y;
+		this.body = world.CreateBody(bodyDef);
+
+		// fixture
+		var shape = new b2PolygonShape();
+		shape.SetAsBox(width, height, 0.5);
+		var fixDef = new b2FixtureDef();
+		fixDef.shape = shape;
+		fixDef.density = 1;
+		this.body.CreateFixture(fixDef);
+	}
+	Platform.prototype.render=function(ctx, scale) {
+		var pos = this.body.GetPosition();
+		ctx.save();
+		ctx.fillStyle = '#555555';
+		ctx.translate(pos.x * scale, pos.y * scale);
+		ctx.rotate(this.body.GetAngle());
+		ctx.beginPath();
+		ctx.moveTo(-1 * this.width * scale, -1 * this.height * scale);
+		ctx.lineTo(this.width * scale, -1 * this.height * scale);
+		ctx.lineTo(this.width * scale, this.height * scale);
+		ctx.lineTo(-1 * this.width * scale, this.height * scale);
+		ctx.lineTo(-1 * this.width * scale, -1 * this.height * scale);
+		ctx.closePath();
+		ctx.fill();
+		ctx.restore();		
+	}
+
+
+    var world;
+    var canvas = document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
+    var parts = new Array();
+    var hen = new Image();
+    hen.src = 'img/hen.png';
+    hen.width = 60;
+    hen.height = 60;
+    var henX = 0;
+    var henY = 0;
+    var scale = 30;
+
+    function init() {
+        window.onresize=function() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
+
+        window.onresize();
+        world = new b2World(new b2Vec2(0, 15),true);
+        
+        parts.push(new Platform(world, canvas.width, 0.1, 0, (canvas.height-2)/scale));
+        parts.push(new Platform(world, canvas.width, 0.1, 0, 0));
+        parts.push(new Platform(world, 0.1, canvas.height, 0, 0));
+        parts.push(new Platform(world, 0.1, canvas.height, (canvas.width-2)/scale, 0));
+
+        canvas.addEventListener('mousemove', function(evt) {
+            henX = evt.pageX;
+            henY = evt.pageY;
+        });
+
+        canvas.addEventListener('click', function(evt) {
+            // lay the egg
+            var newEgg;
+            var newEggImage;
+            if (Math.random() > 0.5) {
+                newEggImage = 'img/white-egg.png';
+            } else {
+                newEggImage = 'img/brown-egg.png';
+            }
+            newEgg = new ImageBall(world, newEggImage, 30/scale, 40/scale, henX/scale, henY/scale);
+            parts.push(newEgg);
+
+
+            newEgg.body.ApplyImpulse(new b2Vec2(250,200), newEgg.body.GetWorldCenter());
+        });
+        //setup debug draw
+        var debugDraw = new b2DebugDraw();
+        debugDraw.SetSprite(ctx);
+        debugDraw.SetDrawScale(30.0);
+        debugDraw.SetFillAlpha(0.5);
+		debugDraw.SetAlpha(0.5);
+        debugDraw.SetLineThickness(3.0);
+        debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
+        world.SetDebugDraw(debugDraw);
+
+        window.setInterval(update, 1000 / 60);
+    }
+
+    function update() {
+        world.Step(1/60, 10, 10);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        //world.DrawDebugData();
+        for (var i=0; i<parts.length; i++) {
+            parts[i].render(ctx, scale);
+        }
+        world.ClearForces();
+
+        // drawing the chicken
+        ctx.save();
+		ctx.translate(henX, henY);
+        ctx.drawImage(hen, -1*hen.width, -1*hen.height, hen.width*2, hen.height*2);
+		ctx.restore();
+    }
+
+
+</script>
+</html>
