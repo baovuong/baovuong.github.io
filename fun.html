@@ -420,7 +420,7 @@
         for (var i = 0; i < 300; ++i) {
 			var x = Math.random() * canvas.width;
 			var y = Math.random() * canvas.height;
-			var choice = randomInt(0,6);
+			var choice = randomInt(0,7);
 			switch (choice) {
 				case 0:
 				things.push(new ImageBall(world, 'img/trump2.png', Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10));
@@ -452,10 +452,16 @@
 					g: Math.floor(Math.random()*255),
 					b: Math.floor(Math.random()*255)
 				};
+
+				case 7:
+				things.push(new ImageBall(world, 'img/guy7p.png', Math.random() + 0.5, Math.random()+0.5, Math.random()*10, Math.random()*10));
+				break;
+
+				case 8:
 				things.push(new ColoredBall(world, RGBValuesToHex(rgb), Math.random()+0.5, Math.random()*10, Math.random()*10));
 				break;
 
-				case 7:
+				case 9:
 				things.push(new Box(world, Math.random()+0.5, Math.random()+0.5, Math.random()*10, Math.random()*10));
 				break;		
 
