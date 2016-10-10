@@ -6,6 +6,11 @@
         body {
             text-align: center;
             font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+            user-select: none;
+            -moz-user-select: none;
+            -khtml-user-select: none;
+            -webkit-user-select: none;
+            -o-user-select: none;
         }
         .stage {
             position: absolute;
@@ -265,7 +270,7 @@
             fgCanvas.width = Math.pow(2,Math.floor(Math.log(window.innerWidth)/Math.log(2))-0);
             fgCanvas.height = Math.pow(2,Math.floor(Math.log(window.innerHeight)/Math.log(2))-0);
             //scale = bgCanvas.width/2;
-            maxVelocity = new b2Vec2(0.2*fgCanvas.width, 0.2*fgCanvas.height).Length();
+            maxVelocity = new b2Vec2(0.2*fgCanvas.width*2, 0.2*fgCanvas.height*0.1).Length();
             for (var i=0; i<bgObjects.length; i++) {
                 bgObjects[i].body.GetWorld().DestroyBody(bgObjects[i].body);
             }
@@ -319,12 +324,12 @@
             //newEgg = new TestBox(world, 30/scale, 40/scale, henX/scale, henY/scale);
             fgObjects.push(newEgg);
 
-            var force = new b2Vec2(randInt(10,0.2*fgCanvas.width) , randInt(5, 0.2*fgCanvas.height));
+            var force = new b2Vec2(randInt(10,0.2*fgCanvas.width*2) , randInt(5, 0.2*fgCanvas.height*0.1));
 
             newEgg.body.ApplyImpulse(force, newEgg.body.GetWorldCenter());
             newEgg.body.ApplyTorque(randInt(500, 5000));
 
-            if (force.Length() >= maxVelocity/3) {
+            if (force.Length() >= maxVelocity*0.45) {
                 cannonSound.currentTime = 0;
                 cannonSound.play();
             } else {
