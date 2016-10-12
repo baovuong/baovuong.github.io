@@ -203,6 +203,20 @@
         return Math.floor(Math.random() * (max - min + 1) + min);
     }
 
+    function loadImage(src, width, height) {
+        var image = {};
+        image.canvas = document.createElement('canvas');
+        image.canvas.width = width;
+        image.canvas.height = height;
+        image.ctx = image.canvas.getContext('2d');
+
+        var i = new Image();
+        i.src = src;
+        image.ctx.drawImage(i, 0, 0, width, height);
+        
+        return image;
+    }
+
     var world;
     
     var bgCanvas = document.getElementById('bg');
