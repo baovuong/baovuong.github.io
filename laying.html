@@ -272,13 +272,9 @@
             i.height = height;           
             image.canvas.width = 2*i.width;
             image.canvas.height = 2*i.height;
-            //image.ctx.save();
             image.ctx.drawImage(i, 0, 0, image.canvas.width, image.canvas.height);
-            //image.ctx.restor();
         };
         i.src = src;       
-        //image.ctx.fillStyle="#FF0000";
-        //image.ctx.fillRect(0,0,image.canvas.width,image.canvas.height);
         
         return image;
     }
@@ -299,19 +295,14 @@
 
 
     // images
-    var eggWidth = 24;
-    var eggHeight = 32;
+    var eggWidth = 3; //24;
+    var eggHeight = 4; //32;
 
     var brownEggImage = loadImage('img/brown-egg.png', eggWidth, eggHeight);
     var whiteEggImage = loadImage('img/white-egg.png', eggWidth, eggHeight);
     var rainbowEggImage = loadImage('img/rainbow-egg.png', eggWidth, eggHeight);
     var goldenEggImage = loadImage('img/golden-egg.png', eggWidth, eggHeight);
     var diamondEggImage = loadImage('img/diamond-egg.png', eggWidth, eggHeight);
-
-    //var hen = new Image();
-    //hen.src = 'img/hen.png';
-    //hen.width = 48;
-    //hen.height = 48;
 
     var henX = 0;
     var henY = 0;
@@ -346,7 +337,7 @@
 
         window.onresize=function() {
             bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
-
+            scale = Math.max(1, Math.max(bgCanvas.width, bgCanvas.height)/100);
             bgCanvas.width = round(window.innerWidth * 0.85); 
             bgCanvas.height = round(window.innerHeight * 0.85); 
             fgCanvas.width = bgCanvas.width; 
@@ -367,6 +358,13 @@
 
             // rendering background
             bgCtx.drawImage(backgroundImage, 0, 0, bgCanvas.width, bgCanvas.height);
+
+
+            brownEggImage = loadImage('img/brown-egg.png', eggWidth*scale, eggHeight*scale);
+            whiteEggImage = loadImage('img/white-egg.png', eggWidth*scale, eggHeight*scale);
+            rainbowEggImage = loadImage('img/rainbow-egg.png', eggWidth*scale, eggHeight*scale);
+            goldenEggImage = loadImage('img/golden-egg.png', eggWidth*scale, eggHeight*scale);
+            diamondEggImage = loadImage('img/diamond-egg.png', eggWidth*scale, eggHeight*scale);
         };
 
         window.onresize();
@@ -405,10 +403,10 @@
             newEgg = new CachedImageBall(world, newEggImage, henX/scale, henY/scale, scale);
             fgObjects.push(newEgg);
 
-            var force = new b2Vec2(randInt(10,0.2*fgCanvas.width*2) , randInt(5, 0.2*fgCanvas.height*0.1));
+            var force = new b2Vec2(randInt(10,0.2*fgCanvas.width*2)*scale , randInt(5, 0.2*fgCanvas.height*0.1));
 
             newEgg.body.ApplyImpulse(force, newEgg.body.GetWorldCenter());
-            newEgg.body.ApplyTorque(randInt(500, 5000));
+            newEgg.body.ApplyTorque(randInt(500, 5000)*scale);
 
             if (force.Length() >= maxVelocity*0.45) {
                 cannonSound.currentTime = 0;
